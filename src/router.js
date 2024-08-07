@@ -1,20 +1,20 @@
-import Vue from 'vue';
-import Router from 'vue-router';
-import {default as LoginPage} from './components/LoginPage.vue';
-import {default as RegisterPage} from './components/RegisterPage.vue';
-import {default as BoardPage} from './components/BoardPage.vue';
-import {default as TutorialPage} from './components/TutorialPage.vue';
+import {createWebHistory, createRouter} from 'vue-router';
+import LoginPage from './components/LoginPage.vue';
+import RegisterPage from './components/RegisterPage.vue';
+import BoardPage from './components/BoardPage.vue';
+import TutorialPage from './components/TutorialPage.vue';
 
-Vue.use(Router);
-
-export default new Router({
-  name: 'router',
-  mode: 'history',
-  routes: [
+const routes = [
     { path: '/', redirect: '/login' },
     { path: '/login', component: LoginPage },
     { path: '/register', component: RegisterPage },
     { path: '/board', component: BoardPage },
     { path: '/tutorial/:tutorial_id', component: TutorialPage },
-  ],
-});
+]
+
+const router = createRouter({
+    history: createWebHistory(),
+    routes,
+})
+
+export default router;
