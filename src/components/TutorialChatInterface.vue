@@ -32,9 +32,10 @@
   </template>
   
   <script>
-  import TutorialChatBlock from './TutorialChatBlock.vue';
+  import {default as TutorialChatBlock} from './TutorialChatBlock.vue';
   
   export default {
+    name: 'TutorialChatInterface',
     components: {
       TutorialChatBlock,
     },

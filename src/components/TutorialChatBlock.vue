@@ -41,9 +41,10 @@
 </template>
 
 <script>
-import { marked } from 'marked';
+import {marked} from 'marked';
 
 export default {
+  name: 'TutorialChatBlock',
   props: {
     block: {
       type: Object,

@@ -1,5 +1,6 @@
 <template>
     <div class="menu">
+      <div class="menu-title">教程目录</div>
       <div v-for="(item, index) in menuItems" :key="index" class="menu-item">
         <div @click="selectItem(item)" class="menu-item-title">
           {{ item.name }}
@@ -18,6 +19,7 @@
   
   <script>
   export default {
+    name: 'TutorialMenu',
     data() {
       return {
         menuItems: [
@@ -56,6 +58,13 @@
   </script>
   
   <style scoped>
+  .menu-title {
+    margin-top: 10px;
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 100px;
+    color: #8b8b8b;
+  }
   .menu {
     overflow-y: auto;
     width: 200px;
