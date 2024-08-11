@@ -328,6 +328,7 @@
 .chat-interface {
   margin-left: 130px;
   display: flex;
+  overflow-y: hidden;
   flex-direction: column;
   height: 100%;
   padding: 20px;
