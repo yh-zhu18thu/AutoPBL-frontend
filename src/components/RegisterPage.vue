@@ -20,6 +20,8 @@
   </template>
   
   <script>
+  import accountService from '@/services/accountService';
+
   export default {
     name: 'RegisterPage',
     data() {
@@ -30,9 +32,24 @@
       };
     },
     methods: {
-      register() {
-        // Handle registration logic here
-        // Example: this.$router.push('/login');
+      register: async function() {
+       try {
+        const response = await accountService.register(this.username, this.password, this.description);
+        alert(JSON.stringify(response));
+        if (response.status === "success") {
+          alert('Registration successful!');
+          this.$router.push('/login');
+        }else{
+          if (response.status === "fail") {
+            alert(response.info);
+          }
+          else{
+            alert('Registration failed!');
+          } 
+        }
+       } catch (error) {
+        console.error('Failed to register:', error);
+       }
       },
     },
   };

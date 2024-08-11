@@ -15,11 +15,11 @@ const accountService = {
     },
     register: async (username, password, profile) => {
         try {
-            const response = await axiosInstance.post('/create_user', {
-                username: username,
-                password: password,
-                profile: profile
-            });
+            const formData = new FormData();
+            formData.append('username', username);
+            formData.append('password', password);
+            formData.append('profile', profile);
+            const response = await axiosInstance.post('/create_user', formData);
             return response.data;
         } catch (error) {
             console.error('Error while registering', error);
