@@ -20,27 +20,27 @@
   <script>
   export default {
     name: 'TutorialMenu',
+    props:{
+        tutorialId: {
+            type: String,
+            required: true
+        },
+        stepId: {
+            type: String,
+            required: false
+        },
+        subStepId: {
+            type: String,
+            required: false
+        },
+        blockId: {
+            type: String,
+            required: false
+        }
+    },
     data() {
       return {
-        menuItems: [
-          { name: '1. 导入库', subItems: [] },
-          { name: '2. 准备数据', subItems: [
-            { name: '2.1 特征' },
-            { name: '2.2 样本集' },
-            { name: '2.3 格式' },
-          ] },
-          { name: '3. 分割数据集', subItems: [
-            { name: '3.1 数据集划分' },
-            { name: '3.2 数据预处理' },
-          ] },
-          { name: '4. 训练模型', subItems: [
-            { name: '4.1 模型选择' },
-            { name: '4.2 模型训练' },
-          ] },
-          { name: '5. 预测评估', subItems: [
-            { name: '5.1 预测评估' },
-          ] },
-        ],
+        menuItems: [],
       };
     },
     methods: {

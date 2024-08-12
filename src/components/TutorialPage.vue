@@ -1,8 +1,8 @@
 <template>
     <div id="tutorial-page">
-      <TutorialMenu class="menu-container"/>
+      <TutorialMenu :tutorialId="currentTutorialId" :stepId="currentStepId" :subStepId="currentSubStepId" :blockId="currentBlockId" class="menu-container"/>
       <div class="chat-container">
-        <TutorialChatInterface class="chat-container"/>
+        <TutorialChatInterface :tutorialId="currentTutorialId" :stepId="currentStepId" :subStepId="currentSubStepId" :blockId="currentBlockId" class="chat-container"/>
       </div>
     </div>
   </template>
@@ -13,20 +13,35 @@
   
   export default {
     name: 'TutorialPage',
+    data() {
+      return {
+        currentTutorialId: this.$route.query.tutorialId || null,
+        currentStepId: null,
+        currentSubStepId: null,
+        currentBlockId: null
+      };
+    },
     components: {
       TutorialMenu,
       TutorialChatInterface
     },
     props:{
-        tutorial_id: {
+        tutorialId: {
             type: String,
             required: true
         }
     },
-    mounted() {
-      // Fetch tutorial data
-      console.log('Fetching tutorial data for tutorial ID:', this.tutorial_id);
-    }
+    methods: {
+      updateCurrentStepId(stepId) {
+        this.currentStepId = stepId;
+      },
+      updateCurrentSubStepId(subStepId) {
+        this.currentSubStepId = subStepId;
+      },
+      updateCurrentBlockId(blockId) {
+        this.currentBlockId = blockId;
+      }
+    },
   };
   </script>
   

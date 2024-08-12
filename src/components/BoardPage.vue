@@ -22,7 +22,7 @@
             :key="project.tutorial_id"
             :class="['project-card', getStatusClass(project.status)]"
             :style="{ cursor: project.status === 2 ? 'pointer' : 'not-allowed' }"
-            @click="goToProject(project.id)"
+            @click="goToProject(project.tutorial_id)"
             :disabled="project.status !== 2"
           >
             <h3>{{ project.tutorial_name }}</h3>
@@ -97,8 +97,8 @@
           }
         }
       },
-      goToProject(projectId) {
-        this.$router.push(`/tutorial/${projectId}`);
+      goToProject(tutorialId) {
+        this.$router.push({ name: '/tutorial', query: { tutorialId: tutorialId } });
       },
     },
   };
