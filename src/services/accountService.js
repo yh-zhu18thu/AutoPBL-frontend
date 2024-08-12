@@ -1,4 +1,4 @@
-import axiosInstance from "./axios";
+import axiosInstance from "axios";
 
 const accountService = {
     login: async (username, password) => {
@@ -6,7 +6,7 @@ const accountService = {
             const formdata = new FormData();
             formdata.append('username', username);
             formdata.append('password', password);
-            const response = await axiosInstance.post('/login', formdata);
+            const response = await axiosInstance.post('/api/account/login', formdata);
             return response.data;
         } catch (error) {
             console.error('Error while logging in', error);
@@ -19,7 +19,7 @@ const accountService = {
             formData.append('username', username);
             formData.append('password', password);
             formData.append('profile', profile);
-            const response = await axiosInstance.post('/create_user', formData);
+            const response = await axiosInstance.post('/api/account/create_user', formData);
             return response.data;
         } catch (error) {
             console.error('Error while registering', error);
