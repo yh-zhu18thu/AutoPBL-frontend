@@ -1,12 +1,12 @@
 <template>
     <div class="menu">
-      <div class="menu-title">教程目录</div>
+      <div class="menu-title">{{ tutorialTitle }}</div>
       <div v-for="(item, index) in menuItems" :key="index" class="menu-item">
-        <div @click="selectItem(item)" class="menu-item-title">
+        <div class="menu-item-title">
           {{ item.name }}
         </div>
-        <div v-if="item.subItems" class="submenu">
-          <div v-for="(subItem, subIndex) in item.subItems" :key="subIndex" @click="selectSubItem(subItem)" class="submenu-item">
+        <div v-if="item.sub_step_cnt>0" class="submenu">
+          <div v-for="(subItem, subIndex) in item.sub_steps" :key="subIndex" @click="selectSubItem(subItem)" class="submenu-item">
             {{ subItem.name }}
           </div>
         </div>
@@ -18,6 +18,8 @@
   </template>
   
   <script>
+  import contentService from '@/services/contentService';
+
   export default {
     name: 'TutorialMenu',
     props:{
@@ -32,26 +34,48 @@
         subStepId: {
             type: String,
             required: false
-        },
-        blockId: {
-            type: String,
-            required: false
         }
     },
     data() {
       return {
+        tutorialTitle: '',
         menuItems: [],
       };
+    },
+    created() {
+      this.getMenuFramework();
+    },
+    watch: {
+      stepId(newVal, oldVal) {
+        //TODO: change the highlight of the menu item
+      },
+      subStepId(newVal, oldVal) {
+        //TODO: change the highlight of the sub-menu item
+      },
     },
     methods: {
       goBack() {
         // Handle the go back action
+        this.$router.push('/board');
       },
-      selectItem(item) {
-        // Handle item selection
+      getMenuFramework: async function(){
+        const response = await contentService.getTutorialFramework(this.tutorialId);
+        if (response.status === success) {
+          this.tutorialTitle = response.title
+          this.menuItems = response.menuItems;
+        } else {
+          if (response.status === fail) {
+            alert(response.info);
+          } else {
+            alert('Failed to fetch tutorial framework');
+          }
+          this.$router.push('/board');
+        }
       },
       selectSubItem(subItem) {
         // Handle sub-item selection
+        this.$emit('update-step-id', subItem.step_id);
+        this.$emit('update-sub-step-id', subItem.sub_step_id);
       },
     },
   };

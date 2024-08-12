@@ -1,8 +1,8 @@
 <template>
     <div id="tutorial-page">
-      <TutorialMenu :tutorialId="currentTutorialId" :stepId="currentStepId" :subStepId="currentSubStepId" :blockId="currentBlockId" class="menu-container"/>
+      <TutorialMenu :tutorialId="currentTutorialId" :stepId="currentStepId" :subStepId="currentSubStepId" @update-step-id="updateCurrentStepId" @update-sub-step-id="updateCurrentSubStepId" class="menu-container"/>
       <div class="chat-container">
-        <TutorialChatInterface :tutorialId="currentTutorialId" :stepId="currentStepId" :subStepId="currentSubStepId" :blockId="currentBlockId" class="chat-container"/>
+        <TutorialChatInterface :tutorialId="currentTutorialId" :stepId="currentStepId" :subStepId="currentSubStepId" :blockId="currentBlockId"  @update-step-id="updateCurrentStepId" @update-sub-step-id="updateCurrentSubStepId" @update-current-block-id="updateCurrentBlockId" class="chat-container"/>
       </div>
     </div>
   </template>
@@ -10,6 +10,7 @@
   <script>
   import {default as TutorialMenu} from './TutorialMenu.vue';
   import {default as TutorialChatInterface} from './TutorialChatInterface.vue';
+  import contentService from '@/services/contentService';
   
   export default {
     name: 'TutorialPage',
@@ -25,13 +26,30 @@
       TutorialMenu,
       TutorialChatInterface
     },
-    props:{
-        tutorialId: {
-            type: String,
-            required: true
-        }
+    // when init, fetch the tutorial status
+    created() {
+      this.initCurrentProgress();
     },
     methods: {
+      initCurrentProgress: async function() {
+        const response = await contentService.showBlocks(this.currentTutorialId);
+        if (response.status === "fail") {
+          alert('Failed to fetch tutorial progress');
+          this.$router.push('/board');
+        }
+        let blockLength = response.length;
+        if (blockLength == 0) {
+          this.currentStepId = 0;
+          this.currentSubStepId = 0;
+          this.currentBlockId = null;
+        } else {
+          // get the last block in response.blocks
+          let lastBlock = response.blocks[blockLength - 1];
+          this.currentStepId = lastBlock.block_index.step_id;
+          this.currentSubStepId = lastBlock.block_index.sub_step_id;
+          this.currentBlockId = lastBlock.block_id;
+        }
+      },
       updateCurrentStepId(stepId) {
         this.currentStepId = stepId;
       },
