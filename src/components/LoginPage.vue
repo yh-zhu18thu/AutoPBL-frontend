@@ -17,6 +17,8 @@
   </template>
   
   <script>
+  import accountService from '@/services/accountService';
+
   export default {
     name: 'LoginPage',
     data() {
@@ -26,13 +28,26 @@
       };
     },
     methods: {
-      login() {
+      login: async function() {
         // Handle login logic here
-        // Example: this.$router.push('/board');
-        this.$router.push('/board');
+        const response = await accountService.login(this.username, this.password);
+        if (response.status === "success") {
+          alert('Login successful!');
+          this.goToBoard();
+        }else{
+          if (response.status === "fail") {
+            alert(response.info);
+          }
+          else{
+            alert('Login failed!');
+          } 
+        }
       },
       goToRegister() {
         this.$router.push('/register');
+      },
+      goToBoard() {
+        this.$router.push('/board');
       },
     },
   };

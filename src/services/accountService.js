@@ -3,10 +3,10 @@ import axiosInstance from "./axios";
 const accountService = {
     login: async (username, password) => {
         try {
-            const response = await axiosInstance.post('/login', {
-                username: username,
-                password: password
-            });
+            const formdata = new FormData();
+            formdata.append('username', username);
+            formdata.append('password', password);
+            const response = await axiosInstance.post('/login', formdata);
             return response.data;
         } catch (error) {
             console.error('Error while logging in', error);

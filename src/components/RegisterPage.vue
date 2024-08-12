@@ -15,6 +15,7 @@
           <textarea id="description" v-model="description" required></textarea>
         </div>
         <button type="submit">Register</button>
+        <button @click.prevent="goToLogin">Login</button>
       </form>
     </div>
   </template>
@@ -35,10 +36,9 @@
       register: async function() {
        try {
         const response = await accountService.register(this.username, this.password, this.description);
-        alert(JSON.stringify(response));
         if (response.status === "success") {
           alert('Registration successful!');
-          this.$router.push('/login');
+          this.goToLogin();
         }else{
           if (response.status === "fail") {
             alert(response.info);
@@ -50,6 +50,9 @@
        } catch (error) {
         console.error('Failed to register:', error);
        }
+      },
+      goToLogin() {
+        this.$router.push('/login');
       },
     },
   };
