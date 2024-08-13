@@ -123,8 +123,8 @@
     transition: background-color 0.2s;
   }
   
-  .menu-item-title:hover {
-    background-color: #e9ecef;
+  .menu-item-title.selected {
+    background-color: #8b8b8b;
   }
   
   .submenu {
@@ -141,5 +141,11 @@
   .submenu-item:hover {
     background-color: #e9ecef;
   }
+
+  .submenu-item.selected {
+    background-color: #8b8b8b;
+  }
+
+  
   </style>
   

@@ -16,7 +16,7 @@
     name: 'TutorialPage',
     data() {
       return {
-        currentTutorialId: this.$route.query.tutorialId || null,
+        currentTutorialId: this.$route.params.tutorial_id || null,
         currentStepId: null,
         currentSubStepId: null,
         currentBlockId: null
@@ -30,9 +30,14 @@
     created() {
       this.initCurrentProgress();
     },
+    //fetch the tutorial id from router: this.$router.push({ path: '/tutorial/' + tutorialId });
+
+
+
     methods: {
       initCurrentProgress: async function() {
         const response = await contentService.showBlocks(this.currentTutorialId);
+        window.alert('response: ' + response);
         if (response.status === "fail") {
           alert('Failed to fetch tutorial progress');
           this.$router.push('/board');

@@ -4,9 +4,11 @@ const contentService = {
     //点击一个教程的时候首先要根据这个接口判断大纲是否已生成
     getTutorialFramework: async (tutorial_id) => {
         try {
-            const formData = new FormData();
-            formData.append('tutorial_id', tutorial_id);
-            const response = await axiosInstance.get(`/api/project/tutorial_framework`, formData);
+            const response = await axiosInstance.get(`/api/project/tutorial_framework`, {
+                params: {
+                    tutorial_id: tutorial_id
+                }
+            });
             return response.data;
         } catch (error) {
             console.error('Error while getting tutorial framework', error);
@@ -16,9 +18,11 @@ const contentService = {
     // 获得当前教程中已经出现过的所有block
     showBlocks: async (tutorial_id) => {
         try {
-            const formData = new FormData();
-            formData.append('tutorial_id', tutorial_id);
-            const response = await axiosInstance.get(`/api/tutorial/show_blocks`, formData);
+            const response = await axiosInstance.get(`/api/tutorial/show_blocks`,{
+                params: {
+                    tutorial_id: tutorial_id
+                }
+            });
             return response.data;
         } catch (error) {
             console.error('Error while showing blocks', error);
@@ -95,9 +99,11 @@ const contentService = {
     // 根据系统返回的block id去轮询block的生成状态以及block的内容
     getNextBlock: async (block_id) => {
         try {
-            const formData = new FormData();
-            formData.append('block_id', block_id);
-            const response = await axiosInstance.get(`/api/tutorial/get_next_block`, formData);
+            const response = await axiosInstance.get(`/api/tutorial/get_next_block`, {
+                params: {
+                    block_id: block_id
+                }
+            });
             return response.data;
         } catch (error) {
             console.error('Error while getting next block', error);

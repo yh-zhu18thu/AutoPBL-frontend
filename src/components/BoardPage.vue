@@ -98,7 +98,8 @@
         }
       },
       goToProject(tutorialId) {
-        this.$router.push({ name: '/tutorial', query: { tutorialId: tutorialId } });
+        // Redirect to the project page, router rule:{ path: '/tutorial/:tutorial_id', component: TutorialPage }
+        this.$router.push({ path: '/tutorial/' + tutorialId });
       },
     },
   };
