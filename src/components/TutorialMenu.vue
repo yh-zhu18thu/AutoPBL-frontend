@@ -6,7 +6,7 @@
           {{ item.name }}
         </div>
         <div v-if="item.sub_step_cnt>0" class="submenu">
-          <div v-for="(subItem, subIndex) in item.sub_steps" :key="subIndex" @click="selectSubItem(item,subItem)" class="submenu-item">
+          <div v-for="(subItem, subIndex) in item.sub_steps" :key="subIndex" @click="selectSubItem(item,subItem)" :class="{'submenu-item': true, 'selected': item.index===stepId && subItem.index===subStepId}">
             {{ subItem.name }}
           </div>
         </div>
@@ -75,7 +75,7 @@
       },
       selectSubItem(item,subItem) {
         // Handle sub-item selection
-        this.$emit('update-step-id', item.step_id);
+        this.$emit('update-step-id', item.index);
         this.$emit('update-sub-step-id', subItem.index);
       },
     },
@@ -145,6 +145,7 @@
 
   .submenu-item.selected {
     background-color: #8b8b8b;
+    color:#f8f9fa;
   }
 
   
