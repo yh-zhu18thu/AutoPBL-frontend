@@ -6,7 +6,7 @@
           {{ item.name }}
         </div>
         <div v-if="item.sub_step_cnt>0" class="submenu">
-          <div v-for="(subItem, subIndex) in item.sub_steps" :key="subIndex" @click="selectSubItem(subItem)" class="submenu-item">
+          <div v-for="(subItem, subIndex) in item.sub_steps" :key="subIndex" @click="selectSubItem(item,subItem)" class="submenu-item">
             {{ subItem.name }}
           </div>
         </div>
@@ -60,11 +60,12 @@
       },
       getMenuFramework: async function(){
         const response = await contentService.getTutorialFramework(this.tutorialId);
-        if (response.status === success) {
+        console.log(JSON.stringify(response));
+        if (response.status === "success") {
           this.tutorialTitle = response.title
-          this.menuItems = response.menuItems;
+          this.menuItems = response.steps;
         } else {
-          if (response.status === fail) {
+          if (response.status === "fail") {
             alert(response.info);
           } else {
             alert('Failed to fetch tutorial framework');
@@ -72,10 +73,10 @@
           this.$router.push('/board');
         }
       },
-      selectSubItem(subItem) {
+      selectSubItem(item,subItem) {
         // Handle sub-item selection
-        this.$emit('update-step-id', subItem.step_id);
-        this.$emit('update-sub-step-id', subItem.sub_step_id);
+        this.$emit('update-step-id', item.step_id);
+        this.$emit('update-sub-step-id', subItem.index);
       },
     },
   };
@@ -84,7 +85,7 @@
   <style scoped>
   .menu-title {
     margin-top: 10px;
-    font-size: 36px;
+    font-size: 24px;
     font-weight: bold;
     margin-bottom: 100px;
     color: #8b8b8b;

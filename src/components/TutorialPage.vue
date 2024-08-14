@@ -37,7 +37,6 @@
     methods: {
       initCurrentProgress: async function() {
         const response = await contentService.showBlocks(this.currentTutorialId);
-        window.alert('response: ' + response);
         if (response.status === "fail") {
           alert('Failed to fetch tutorial progress');
           this.$router.push('/board');
@@ -59,6 +58,7 @@
         this.currentStepId = stepId;
       },
       updateCurrentSubStepId(subStepId) {
+        alert('updateCurrentSubStepId: ' + subStepId);
         this.currentSubStepId = subStepId;
       },
       updateCurrentBlockId(blockId) {
