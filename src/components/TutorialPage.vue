@@ -50,7 +50,7 @@
           let lastBlock = response.blocks[blockLength - 1];
           this.currentStepId = Number(lastBlock.block_index.step_id);
           this.currentSubStepId = Number(lastBlock.block_index.sub_step_id);
-          this.currentBlockId = Number(lastBlock.block_id);
+          this.currentBlockId = Number(lastBlock.block_index.block_id);
         }
       },
       updateCurrentStepId(stepId) {

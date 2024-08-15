@@ -28,7 +28,7 @@
             {{ quote }}
             <span @click="removeQuote">x</span>
           </div>
-          <textarea v-model="newMessage" placeholder="输入……"></textarea>
+          <textarea v-model="newMessage" placeholder="输入……" @keydown.enter="sendMessage"></textarea>
           <button @click="sendMessage" class="send-button">
             <i class="fas fa-paper-plane"></i>
           </button>
@@ -89,6 +89,7 @@
           left: '0px',
         },
         selectedBlockId: null,
+        quoteBlockId: null,
       };
     },
     created() {
@@ -147,6 +148,7 @@
             break;
           case 'quote':
             this.quoteText();
+            this.quoteBlockId = this.selectedBlockId;
             break;
           case 'collection':
             this.addToCollection();
@@ -243,14 +245,31 @@
         this.updateBlockId(blockId);
         this.getNextBlock();
       },
-      sendMessage() {
+      sendMessage: async function() {
         if (this.newMessage.trim()) {
-          this.messages.push(this.newMessage);
+          const hasQuote = this.quote.length > 0;
+          //console.log('tutorialId', this.tutorialId, 'stepId', this.stepId, 'subStepId', this.subStepId, 'blockId', this.blockId, 'newMessage', this.newMessage, 'selectedFunction', this.selectedFunction, 'hasQuote', hasQuote, 'quote', this.quote, 'quoteBlockId', this.quoteBlockId);
+          const response = await contentService.postUserQuery(
+            this.tutorialId, this.stepId, this.subStepId, this.blockId, 
+            this.newMessage,this.selectedFunction.label, hasQuote, this.quote, this.quoteBlockId);
           this.newMessage = '';
+          this.quote = '';
+          this.selectedFunction = null;
           this.$nextTick(() => {
             const chatContainer = this.$el.querySelector('.chat-container');
             chatContainer.scrollTop = chatContainer.scrollHeight;
           });
+          if (response.status === "success") {
+            const nextBlockId = response.next_block_id;
+            this.updateBlockId(nextBlockId);
+            this.getNextBlock();
+          }else {
+            if (response.status === "fail") {
+              alert(response.info);
+            } else {
+              alert('Failed to submit user query');
+            }
+          }
         }
       },
       selectFunction(button) {
