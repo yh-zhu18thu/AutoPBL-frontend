@@ -95,7 +95,6 @@ export default {
   },
   computed: {
     userAnswered() {
-      return false;
       const userInputContent = this.block.data.user_input_content.user_input;
       const userInputType = this.block.data.user_input_content.type;
       if (userInputType=="text_input") {
