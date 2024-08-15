@@ -40,7 +40,7 @@
           this.$router.push('/board');
         }
         let blockLength = Number(response.length);
-        console.log('block', response);
+        //console.log('block', response);
         if (blockLength == 0) {
           this.currentStepId = 0;
           this.currentSubStepId = 0;

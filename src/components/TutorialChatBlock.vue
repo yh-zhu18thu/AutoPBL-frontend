@@ -12,19 +12,51 @@
       <div class="user-question">
         <p>{{ block.data.user_input_content.desc }}</p>
         <div v-if="block.data.user_input_content.type === 'multi_choice'">
-          <button v-for="choice,index in block.data.user_input_content.choices" :key="choice" class="choice-button" @click="handleUserMultiChoice(index)">
+          <button 
+            v-for="choice,index in block.data.user_input_content.choices" 
+            :key="choice" 
+            class="choice-button" 
+            @click="handleUserMultiChoice(index)"
+            :class="{ 'selected-choice': selectedChoice === index , 'disabled-button': userAnswered}"
+            :disabled="userAnswered"
+          >
             {{ choice }}
           </button>
         </div>
         <div v-else-if="block.data.user_input_content.type === 'single_choice'">
-          <button class="choice-button" @click="handleUserSingleChoice">
+          <button 
+            class="choice-button" 
+            @click="handleUserSingleChoice"
+            :disabled="userAnswered"
+            :class="{ 'disabled-button': userAnswered}"
+          >
             {{ block.data.user_input_content.choice }}
           </button>
         </div>
         <div v-else-if="block.data.user_input_content.type === 'text_input'" class="text-input-section">
-          <input type="text" v-model="userInput" placeholder="输入你的答案..." />
-          <button class="choice-button" @click="handleGPT">GPT帮我答</button>
-          <button class="choice-button" @click="handleUserTextInput">提交</button>
+          <input 
+            type="text"
+            v-model="userInput" 
+            placeholder="输入你的答案..." 
+            :disabled="userAnswered"
+            :class="{ 'disabled-input': userAnswered}"
+          />
+          <button 
+            class="choice-button" 
+            @click="handleGPT"
+            :disabled="userAnswered"
+            :class="{ 'disabled-button': userAnswered, 'selected-choice': selectedTextInputType === 'gpt'}"
+          >
+            GPT帮我答
+          </button>
+          <button 
+            class="choice-button" 
+            @click="handleUserTextInput"
+            :disabled="userAnswered"
+            :class="{ 'disabled-button': userAnswered, 'selected-choice': selectedTextInputType === 'submit'}"
+          >
+            提交
+          </button>
         </div>
       </div>
     </div>
@@ -56,10 +88,24 @@ export default {
   },
   data() {
     return {
-      userInput: ''
+      userInput: this.userAnswerContent(),
+      selectedChoice: -1,
+      selectedTextInputType: '',
     };
   },
   computed: {
+    userAnswered() {
+      return false;
+      const userInputContent = this.block.data.user_input_content.user_input;
+      const userInputType = this.block.data.user_input_content.type;
+      if (userInputType=="text_input") {
+        return userInputContent != 'PLACEHOLDER';
+      } else if (userInputType=="single_choice") {
+        return userInputContent != false;
+      } else if (userInputType=="multi_choice") {
+        return userInputContent != -1;
+      }
+    },
     isTutorial() {
       return this.block.block_type != 'user_query';
     },
@@ -78,15 +124,30 @@ export default {
     }
   },
   created() {
-    // 
+    console.log('block',this.block);
   },
   methods: {
+    userAnswerContent() {
+      const userInputContent = this.block.data.user_input_content.user_input;
+      const userInputType = this.block.data.user_input_content.type;
+      if (userInputType=="text_input") {
+        if (userInputContent == 'PLACEHOLDER') {
+          return '';
+        } else {
+          return userInputContent;
+        }
+      } else {
+        return '';
+      }
+    },
     handleGPT() {
       // Handle GPT response
+      this.selectedTextInputType = 'gpt';
       console.log('GPT帮我答');
     },
     handleUserTextInput() {
       // Handle submit
+      this.selectedTextInputType = 'submit';
       this.submitUserAnswer('text_input', this.userInput);
     },
     handleUserSingleChoice() {
@@ -96,6 +157,7 @@ export default {
     },
     handleUserMultiChoice(choiceIndex) {
       // Handle user multi choice
+      this.selectedChoice = choiceIndex;
       this.submitUserAnswer('multi_choice', choiceIndex);
     },
     submitUserAnswer: async function(type, answer){
@@ -113,9 +175,11 @@ export default {
       }
     },
     updateBlock(block){
+      //alert('updateBlock: ' + JSON.stringify(block));
       this.$emit('update-block', block);
     },
     updateBlockId(newBlockId){
+      //alert('updateBlockId: ' + newBlockId);
       this.$emit('update-block-id', newBlockId);
     }
   }
@@ -223,4 +287,21 @@ export default {
   border-radius: 5px;
   display: inline-block;
 }
+
+.disabled-button {
+  background-color: grey;
+  color: white;
+  cursor: not-allowed;
+}
+
+.disabled-input {
+  background-color: lightgrey;
+  color: darkgrey;
+  cursor: not-allowed;
+}
+
+.selected-choice {
+  border-color: blue; /* Change to your desired edge color */
+}
+
 </style>

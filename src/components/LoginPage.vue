@@ -32,7 +32,6 @@
         // Handle login logic here
         const response = await accountService.login(this.username, this.password);
         if (response.status === "success") {
-          alert('Login successful!');
           this.goToBoard();
         }else{
           if (response.status === "fail") {

@@ -2,7 +2,7 @@
     <div class="chat-interface">
       <LoadingSpinner :show="isLoading" />
       <div class="chat-container">
-        <TutorialChatBlock v-for="(blk, index) in chatBlocks" :key="index" :block="blk" :update-block-id="towardsNextBlock" :update-block="updateBlock"/>
+        <TutorialChatBlock v-for="(blk, index) in chatBlocks" :key="index" :block="blk" @update-block-id="towardsNextBlock" @update-block="updateBlock"/>
       </div>
       <div class="function-entry-container">
         <div class="function-buttons">
@@ -125,15 +125,18 @@
       },
       getNextBlock() {
         //call get next block, until really get the next block
-        this.isLoading = true;
         this.getBlockIntervalId = setInterval(async () => {
+          this.isLoading = true;
           const response = await contentService.getNextBlock(this.blockId);
+          console.log('get block response', response);
           if (response.status === "ready") {
             this.isLoading = false;
             const newBlock = response.block;
+            //alert('new block step_id: ' + newBlock.block_index.step_id + ', sub_step_id: ' + newBlock.block_index.sub_step_id + ', block_id: ' + newBlock.block_index.block_id);
+            //alert('current step_id: ' + this.stepId + ', sub_step_id: ' + this.subStepId);
             if (newBlock.block_index.sub_step_id != this.subStepId || newBlock.block_index.step_id != this.stepId) {
               this.$emit('update-step-id', newBlock.block_index.step_id);
-              this.$emit('update-sub-step-id', newBlock.subStepId);
+              this.$emit('update-sub-step-id', newBlock.block_index.sub_step_id);
               //clear the chat blocks
               this.chatBlocks = [];
             }
