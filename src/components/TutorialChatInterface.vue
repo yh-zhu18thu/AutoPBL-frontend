@@ -1,8 +1,16 @@
 <template>
     <div class="chat-interface">
       <LoadingSpinner :show="isLoading" />
-      <div class="chat-container">
-        <TutorialChatBlock v-for="(blk, index) in chatBlocks" :key="index" :block="blk" @update-block-id="towardsNextBlock" @update-block="updateBlock"/>
+      <div class="chat-container" @mouseup="handleSelection">
+          <SelectionMenu :showMenu="showMenu" :menuStyle="menuStyle" @menu-selection="handleMenuSelection" @close="showMenu = false"/>
+        <TutorialChatBlock 
+          v-for="(blk, index) in chatBlocks" 
+          :key="index" 
+          :block="blk" 
+          @update-block-id="towardsNextBlock" 
+          @update-block="updateBlock" 
+          ref="chatBlocks"
+        />
       </div>
       <div class="function-entry-container">
         <div class="function-buttons">
@@ -33,6 +41,7 @@
   import {default as TutorialChatBlock} from './TutorialChatBlock.vue';
   import contentService from '@/services/contentService';
   import LoadingSpinner from './LoadingSpinner.vue';
+  import SelectionMenu from './SelectionMenu.vue';
   
   export default {
     name: 'TutorialChatInterface',
@@ -56,7 +65,8 @@
     },
     components: {
       TutorialChatBlock,
-      LoadingSpinner
+      LoadingSpinner,
+      SelectionMenu,
     },
     data() {
       return {
@@ -71,7 +81,14 @@
             { label: '练习' },
         ],
         getBlockIntervalId: null,
-        isLoading: false //control the occurence of loading spinner
+        isLoading: false, //control the occurence of loading spinner
+        showMenu: false,
+        selectedText: '',
+        menuStyle: {
+          top: '0px',
+          left: '0px',
+        },
+        selectedBlockId: null,
       };
     },
     created() {
@@ -85,6 +102,66 @@
       }
     },
     methods: {
+      handleSelection() {
+        const selection = window.getSelection();
+        if (selection.toString().length > 0) {
+          this.selectedText = selection.toString();
+          const rect = selection.getRangeAt(0).getBoundingClientRect();
+          const offsetX = -300;
+          const offsetY = -100;
+          const blockId = this.findBlockIdForSelection(selection.getRangeAt(0));
+          if (blockId) {
+            this.selectedBlockId = blockId;
+            this.menuStyle.top = `${rect.bottom + window.scrollY+offsetY}px`;
+            this.menuStyle.left = `${rect.right + window.scrollX+offsetX}px`;
+            this.showMenu = true;
+          }
+        } else {
+          this.showMenu = false;
+        }
+      },
+      findBlockIdForSelection(range) {
+        const rangeRect = range.getBoundingClientRect();
+        const blocks = this.$refs.chatBlocks;
+        for (let i = 0; i < blocks.length; i++) {
+          const blockElement = blocks[i].$el;
+          const blockRange = document.createRange();
+          blockRange.selectNodeContents(blockElement);
+          // Check if the selection range intersects with the block range
+          const bounding_rect = range.getBoundingClientRect();
+          if (
+            rangeRect.top <= bounding_rect.bottom &&
+            rangeRect.bottom >= bounding_rect.top &&
+            rangeRect.left <= bounding_rect.right &&
+            rangeRect.right >= bounding_rect.left
+          ) {
+            return blocks[i].block.block_index.block_id;  // Return the index (or block ID)
+          }
+        }
+        return null;  // No matching block found
+      },
+      handleMenuSelection(choice) {
+        switch (choice) {
+          case 'copy':
+            navigator.clipboard.writeText(this.selectedText);
+            break;
+          case 'quote':
+            this.quoteText();
+            break;
+          case 'collection':
+            this.addToCollection();
+            break;
+          default:
+            break;
+        }
+        this.showMenu = false;
+      },
+      quoteText() {
+        this.quote = this.selectedText;
+      },
+      addToCollection() {
+        // Logic to add selected text to collection
+      },
       initChatBlocks: async function() {
         //call get substep chat blocks
         //alert('initChatBlocks, subStepId: ' + this.subStepId + ', stepId: ' + this.stepId + ', blockId: ' + this.blockId);
@@ -312,6 +389,18 @@ textarea {
 
 .send-button i {
   font-size: 20px;
+}
+
+.selection-menu {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+.selection-menu button {
+  margin-right: 5px;
 }
 
 </style>

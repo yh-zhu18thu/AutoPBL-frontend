@@ -19,7 +19,7 @@
         currentTutorialId: Number(this.$route.params.tutorial_id) || null,
         currentStepId: null,
         currentSubStepId: null,
-        currentBlockId: null
+        currentBlockId: null,
       };
     },
     components: {
