@@ -2,7 +2,7 @@
     <div id="tutorial-page">
       <TutorialMenu :tutorialId="currentTutorialId" :stepId="currentStepId" :subStepId="currentSubStepId" @update-step-id="updateCurrentStepId" @update-sub-step-id="updateCurrentSubStepId" class="menu-container"/>
       <div class="chat-container">
-        <TutorialChatInterface :tutorialId="currentTutorialId" :stepId="currentStepId" :subStepId="currentSubStepId" :blockId="currentBlockId"  @update-step-id="updateCurrentStepId" @update-sub-step-id="updateCurrentSubStepId" @update-current-block-id="updateCurrentBlockId" class="chat-container"/>
+        <TutorialChatInterface :tutorialId="currentTutorialId" :stepId="currentStepId" :subStepId="currentSubStepId" :blockId="currentBlockId"  @update-step-id="updateCurrentStepId" @update-sub-step-id="updateCurrentSubStepId" @update-block-id="updateCurrentBlockId" class="chat-container"/>
       </div>
     </div>
   </template>
@@ -16,7 +16,7 @@
     name: 'TutorialPage',
     data() {
       return {
-        currentTutorialId: this.$route.params.tutorial_id || null,
+        currentTutorialId: Number(this.$route.params.tutorial_id) || null,
         currentStepId: null,
         currentSubStepId: null,
         currentBlockId: null
@@ -32,8 +32,6 @@
     },
     //fetch the tutorial id from router: this.$router.push({ path: '/tutorial/' + tutorialId });
 
-
-
     methods: {
       initCurrentProgress: async function() {
         const response = await contentService.showBlocks(this.currentTutorialId);
@@ -41,7 +39,8 @@
           alert('Failed to fetch tutorial progress');
           this.$router.push('/board');
         }
-        let blockLength = response.length;
+        let blockLength = Number(response.length);
+        console.log('block', response);
         if (blockLength == 0) {
           this.currentStepId = 0;
           this.currentSubStepId = 0;
@@ -49,16 +48,16 @@
         } else {
           // get the last block in response.blocks
           let lastBlock = response.blocks[blockLength - 1];
-          this.currentStepId = lastBlock.block_index.step_id;
-          this.currentSubStepId = lastBlock.block_index.sub_step_id;
-          this.currentBlockId = lastBlock.block_id;
+          this.currentStepId = Number(lastBlock.block_index.step_id);
+          this.currentSubStepId = Number(lastBlock.block_index.sub_step_id);
+          this.currentBlockId = Number(lastBlock.block_id);
         }
       },
       updateCurrentStepId(stepId) {
         this.currentStepId = stepId;
       },
       updateCurrentSubStepId(subStepId) {
-        alert('updateCurrentSubStepId: ' + subStepId);
+        //alert('updateCurrentSubStepId: ' + subStepId);
         this.currentSubStepId = subStepId;
       },
       updateCurrentBlockId(blockId) {

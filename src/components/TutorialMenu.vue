@@ -24,15 +24,15 @@
     name: 'TutorialMenu',
     props:{
         tutorialId: {
-            type: String,
+            type: Number,
             required: true
         },
         stepId: {
-            type: String,
+            type: Number,
             required: false
         },
         subStepId: {
-            type: String,
+            type: Number,
             required: false
         }
     },
@@ -45,14 +45,6 @@
     created() {
       this.getMenuFramework();
     },
-    watch: {
-      stepId(newVal, oldVal) {
-        //TODO: change the highlight of the menu item
-      },
-      subStepId(newVal, oldVal) {
-        //TODO: change the highlight of the sub-menu item
-      },
-    },
     methods: {
       goBack() {
         // Handle the go back action
@@ -60,7 +52,7 @@
       },
       getMenuFramework: async function(){
         const response = await contentService.getTutorialFramework(this.tutorialId);
-        console.log(JSON.stringify(response));
+        //console.log(JSON.stringify(response));
         if (response.status === "success") {
           this.tutorialTitle = response.title
           this.menuItems = response.steps;

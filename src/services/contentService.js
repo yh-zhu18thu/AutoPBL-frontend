@@ -45,10 +45,13 @@ const contentService = {
     getSubStepBlocks: async (tutorial_id, step_id, sub_step_id) => {
         try {
             const formData = new FormData();
-            formData.append('tutorial_id', tutorial_id);
-            formData.append('step_id', step_id);
-            formData.append('sub_step_id', sub_step_id);
-            const response = await axiosInstance.get(`/api/tutorial/get_sub_step_blocks`, formData);
+            const response = await axiosInstance.get(`/api/tutorial/sub_step_blocks`, {
+                params: {
+                    tutorial_id: tutorial_id,
+                    step_index: step_id,
+                    sub_step_index: sub_step_id
+                }
+            });
             return response.data;
         } catch (error) {
             console.error('Error while getting sub step blocks', error);
@@ -56,14 +59,12 @@ const contentService = {
         }
     },
     // 用户提交反馈，系统会返回下一个block的id，但需要去轮询直到下一个block生成成功
-    postUserAnswer: async (type, user_answer, tutorial_id, step_id, sub_step_id, block_id) => {
+    postUserAnswer: async (type, user_answer, tutorial_id,block_id) => {
         try {
             const formData = new FormData();
             formData.append('type', type);
             formData.append('user_answer', user_answer);
             formData.append('tutorial_id', tutorial_id);
-            formData.append('step_id', step_id);
-            formData.append('sub_step_id', sub_step_id);
             formData.append('block_id', block_id);
             const response = await axiosInstance.post('/api/tutorial/user_answer', formData);
             return response.data;
@@ -99,7 +100,7 @@ const contentService = {
     // 根据系统返回的block id去轮询block的生成状态以及block的内容
     getNextBlock: async (block_id) => {
         try {
-            const response = await axiosInstance.get(`/api/tutorial/get_next_block`, {
+            const response = await axiosInstance.get(`/api/tutorial/next_block`, {
                 params: {
                     block_id: block_id
                 }

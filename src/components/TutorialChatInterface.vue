@@ -1,10 +1,8 @@
 <template>
     <div class="chat-interface">
-      <div class="tutorial-title">
-        {{tutorial_title}}
-      </div>
+      <LoadingSpinner :show="isLoading" />
       <div class="chat-container">
-        <TutorialChatBlock v-for="(blk, index) in chatBlocks" :key="index" :block="blk" />
+        <TutorialChatBlock v-for="(blk, index) in chatBlocks" :key="index" :block="blk" :update-block-id="towardsNextBlock" :update-block="updateBlock"/>
       </div>
       <div class="function-entry-container">
         <div class="function-buttons">
@@ -33,29 +31,32 @@
   
   <script>
   import {default as TutorialChatBlock} from './TutorialChatBlock.vue';
+  import contentService from '@/services/contentService';
+  import LoadingSpinner from './LoadingSpinner.vue';
   
   export default {
     name: 'TutorialChatInterface',
     props:{
         tutorialId: {
-            type: String,
+            type: Number,
             required: true
         },
         stepId: {
-            type: String,
+            type: Number,
             required: false
         },
         subStepId: {
-            type: String,
+            type: Number,
             required: false
         },
         blockId: {
-            type: String,
+            type: Number,
             required: false
         }
     },
     components: {
       TutorialChatBlock,
+      LoadingSpinner
     },
     data() {
       return {
@@ -69,10 +70,99 @@
             { label: '可视化' },
             { label: '练习' },
         ],
-        tutorial_title: 'Python基础教程'
+        getBlockIntervalId: null,
+        isLoading: false //control the occurence of loading spinner
       };
     },
+    created() {
+      if (this.subStepId) {
+        this.initChatBlocks();
+      }
+    },
+    watch: {
+      subStepId: function(newVal, oldVal) {
+        this.initChatBlocks();
+      }
+    },
     methods: {
+      initChatBlocks: async function() {
+        //call get substep chat blocks
+        //alert('initChatBlocks, subStepId: ' + this.subStepId + ', stepId: ' + this.stepId + ', blockId: ' + this.blockId);
+        if (this.subStepId!=null){
+          if (this.stepId==0 && this.subStepId==0 && (this.blockId==null || this.blockId==NaN)){
+            //generate the first block of the tutorial
+            const response = await contentService.generateFirstBlock(this.tutorialId);
+            if (response.status === "success") {
+              const newBlockId = response.next_block_id;
+              //alert('new block id: ' + newBlockId);
+              this.updateBlockId(newBlockId);
+              this.getNextBlock();
+            }else{
+              if (response.status === "fail") {
+                alert(response.info);
+                this.$router.push('/board');
+              }else{
+                alert('Failed to fetch tutorial progress');
+                this.$router.push('/board');
+              }
+            }
+          } else {
+            //get all the chat blocks of the substep
+            const response = await contentService.getSubStepBlocks(this.tutorialId, this.stepId, this.subStepId);
+            if (response.status === "success") {
+              this.chatBlocks = response.blocks;
+            }else {
+              if (response.status === "fail") {
+                alert(response.info);
+                this.$router.push('/board');
+              }else{
+                alert('Failed to fetch tutorial progress');
+                this.$router.push('/board');
+              }
+            }
+          }
+        }
+      },
+      getNextBlock() {
+        //call get next block, until really get the next block
+        this.isLoading = true;
+        this.getBlockIntervalId = setInterval(async () => {
+          const response = await contentService.getNextBlock(this.blockId);
+          if (response.status === "ready") {
+            this.isLoading = false;
+            const newBlock = response.block;
+            if (newBlock.block_index.sub_step_id != this.subStepId || newBlock.block_index.step_id != this.stepId) {
+              this.$emit('update-step-id', newBlock.block_index.step_id);
+              this.$emit('update-sub-step-id', newBlock.subStepId);
+              //clear the chat blocks
+              this.chatBlocks = [];
+            }
+            this.chatBlocks.push(newBlock);
+            this.updateBlockId(newBlock.block_index.block_id);
+            clearInterval(this.getBlockIntervalId);
+          }else{
+            if (response.status == 'generating'){
+              this.isLoading = true;
+            } else if (response.status === "fault") {
+              alert("generation failed");
+            } else {
+              if (response.status === "fail") {
+                alert(response.info);
+                this.$router.push('/board');
+              } else {
+                alert('Failed to fetch tutorial progress');
+                this.$router.push('/board');
+              }
+            }
+          }
+        }, 1000);
+      },
+      towardsNextBlock(blockId) {
+        //call get next block, until really get the next block
+        //alert('towardsNextBlock, blockId: ' + blockId);
+        this.updateBlockId(blockId);
+        this.getNextBlock();
+      },
       sendMessage() {
         if (this.newMessage.trim()) {
           this.messages.push(this.newMessage);
@@ -95,6 +185,24 @@
       removeQuote() {
         this.quote = '';
       },
+      updateStepId(stepId) {
+        this.$emit('update-step-id', stepId);
+      },
+      updateSubStepId(subStepId) {
+        this.$emit('update-sub-step-id', subStepId);
+      },
+      updateBlockId(blockId) {
+        this.$emit('update-block-id', blockId);
+      },
+      updateBlock(block){
+        //iterate through the chatblocks and find the block with the same block_id, then update it
+        for (let i = 0; i < this.chatBlocks.length; i++) {
+          if (this.chatBlocks[i].block_index.block_id == block.block_index.block_id) {
+            this.chatBlocks[i] = block;
+            break;
+          }
+        }
+      }
     },
   };
   </script>
@@ -108,14 +216,6 @@
   height: 100%;
   padding: 20px;
   box-sizing: border-box;
-}
-
-.tutorial-title {
-  position:fixed;
-  font-size: 24px;
-  font-weight: bold;
-  margin-left: 130px;
-  padding: 10px;
 }
 
 .chat-container {

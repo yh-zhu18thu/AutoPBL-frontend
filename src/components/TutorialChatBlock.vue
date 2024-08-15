@@ -11,20 +11,20 @@
       <div v-html="renderedMarkdown" class="tutorial-content"></div>
       <div class="user-question">
         <p>{{ block.data.user_input_content.desc }}</p>
-        <div v-if="block.data.user_input_content.type === 'multi_choices'">
-          <button v-for="choice in block.data.user_input_content.choices" :key="choice.choice_id" class="choice-button">
-            {{ choice.choice_content }}
+        <div v-if="block.data.user_input_content.type === 'multi_choice'">
+          <button v-for="choice,index in block.data.user_input_content.choices" :key="choice" class="choice-button" @click="handleUserMultiChoice(index)">
+            {{ choice }}
           </button>
         </div>
         <div v-else-if="block.data.user_input_content.type === 'single_choice'">
-          <button class="choice-button">
-            {{ block.data.user_input_content.choice_content }}
+          <button class="choice-button" @click="handleUserSingleChoice">
+            {{ block.data.user_input_content.choice }}
           </button>
         </div>
         <div v-else-if="block.data.user_input_content.type === 'text_input'" class="text-input-section">
           <input type="text" v-model="userInput" placeholder="输入你的答案..." />
           <button class="choice-button" @click="handleGPT">GPT帮我答</button>
-          <button class="choice-button" @click="handleSubmit">提交</button>
+          <button class="choice-button" @click="handleUserTextInput">提交</button>
         </div>
       </div>
     </div>
@@ -42,6 +42,9 @@
 
 <script>
 import {marked} from 'marked';
+import robotLogo from '@/assets/robot.png';
+import studentLogo from '@/assets/student.png';
+import contentService from '@/services/contentService';
 
 export default {
   name: 'TutorialChatBlock',
@@ -58,13 +61,13 @@ export default {
   },
   computed: {
     isTutorial() {
-      return this.block.block_type === 'tutorial';
+      return this.block.block_type != 'user_query';
     },
     blockClass() {
       return this.isTutorial ? 'tutorial-block' : 'user-block';
     },
     portraitUrl() {
-      return this.isTutorial ? 'src/assets/robot.png' : 'src/assets/student.png'; 
+      return this.isTutorial ?  robotLogo : studentLogo;
     },
     blockIdentifier() {
       const { step_id, sub_step_id, block_id } = this.block.block_index;
@@ -74,14 +77,46 @@ export default {
       return marked(this.block.data.content);
     }
   },
+  created() {
+    // 
+  },
   methods: {
     handleGPT() {
       // Handle GPT response
       console.log('GPT帮我答');
     },
-    handleSubmit() {
+    handleUserTextInput() {
       // Handle submit
-      console.log('提交');
+      this.submitUserAnswer('text_input', this.userInput);
+    },
+    handleUserSingleChoice() {
+      // Handle user single choice
+      this.submitUserAnswer('single_choice', '');
+      
+    },
+    handleUserMultiChoice(choiceIndex) {
+      // Handle user multi choice
+      this.submitUserAnswer('multi_choice', choiceIndex);
+    },
+    submitUserAnswer: async function(type, answer){
+      //alert('submitUserAnswer: ' + this.block.block_index.block_id + ', type: ' + type + ', answer: ' + answer);
+      const response = await contentService.postUserAnswer(type, answer, this.block.block_index.tutorial_id, this.block.block_index.block_id);
+      if (response.status === "success") {
+        this.updateBlock(response.confirmed_block);
+        this.updateBlockId(response.next_block_id);
+      } else {
+        if (response.status === "fail") {
+          alert(response.info);
+        } else {
+          alert('Failed to submit user answer');
+        }
+      }
+    },
+    updateBlock(block){
+      this.$emit('update-block', block);
+    },
+    updateBlockId(newBlockId){
+      this.$emit('update-block-id', newBlockId);
     }
   }
 };
