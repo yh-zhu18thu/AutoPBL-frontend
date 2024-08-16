@@ -1,7 +1,7 @@
 <template>
     <div id="tutorial-page">
       <TutorialMenu :tutorialId="currentTutorialId" :stepId="currentStepId" :subStepId="currentSubStepId" @update-step-id="updateCurrentStepId" @update-sub-step-id="updateCurrentSubStepId" class="menu-container"/>
-      <div class="chat-container">
+      <div class="content-container">
         <TutorialChatInterface :tutorialId="currentTutorialId" :stepId="currentStepId" :subStepId="currentSubStepId" :blockId="currentBlockId"  @update-step-id="updateCurrentStepId" @update-sub-step-id="updateCurrentSubStepId" @update-block-id="updateCurrentBlockId" class="chat-container"/>
       </div>
     </div>
@@ -70,25 +70,30 @@
   <style scoped>
   #tutorial-page {
     display: flex;
-    height: 100%;
+    height: 100vh; /* Full browser height */
+    width: 100vw; /* Full browser width */
   }
-  
+
   .menu-container {
     position: fixed;
     top: 0;
     left: 0;
-    width: 220px;
-    height: 100%;
+    width: 250px; /* Fixed width for the menu */
+    height: 100vh; /* Full height for the menu */
     background-color: #f8f9fa;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
-  
+
   .content-container {
-    flex: 1; /* Remaining space for chat interface */
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 250px; /* Start after the menu */
+    width: calc(100vw - 250px); /* Take up the remaining width */
+    height: 100vh; /* Full height for the content */
+    background-color: #ffffff; /* Optional: background color for content */
+    overflow: auto; /* Enable scrolling within the content container if needed */
   }
+
   </style>
   
   

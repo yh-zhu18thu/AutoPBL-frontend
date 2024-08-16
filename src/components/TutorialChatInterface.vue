@@ -1,10 +1,27 @@
 <template>
     <div class="chat-interface">
+       <!-- Radio Button Group -->
+        <div class="content-filter">
+          <label>
+            <!--set this one to default-->
+            <input type="radio" value="all" v-model="contentFilter" />
+            全部显示
+          </label>
+          <label>
+            <input type="radio" value="tutorial" v-model="contentFilter" />
+            仅教程
+          </label>
+          <label>
+            <input type="radio" value="query" v-model="contentFilter" />
+            仅问答
+          </label>
+        </div>
+
       <LoadingSpinner :show="isLoading" />
       <div class="chat-container" @mouseup="handleSelection">
           <SelectionMenu :showMenu="showMenu" :menuStyle="menuStyle" @menu-selection="handleMenuSelection" @close="showMenu = false"/>
         <TutorialChatBlock 
-          v-for="(blk, index) in chatBlocks" 
+          v-for="(blk, index) in filteredChatBlocks" 
           :key="index" 
           :block="blk" 
           @update-block-id="towardsNextBlock" 
@@ -68,6 +85,17 @@
       LoadingSpinner,
       SelectionMenu,
     },
+    computed: {
+      filteredChatBlocks() {
+        if (this.contentFilter === 'all') {
+          return this.chatBlocks;
+        } else if (this.contentFilter === 'tutorial') {
+          return this.chatBlocks.filter(block => block.block_type === 'tutorial');
+        } else if (this.contentFilter === 'query') {
+          return this.chatBlocks.filter(block => block.block_type != 'tutorial');
+        }
+      }
+    },
     data() {
       return {
         chatBlocks: [],
@@ -90,6 +118,7 @@
         },
         selectedBlockId: null,
         quoteBlockId: null,
+        contentFilter: 'all',
       };
     },
     created() {
@@ -308,39 +337,60 @@
   
 <style scoped>
 .chat-interface {
-  margin-left: 130px;
   display: flex;
-  overflow-y: hidden;
   flex-direction: column;
-  height: 100%;
+  height: 100%; /* Full height within the content container */
   padding: 20px;
   box-sizing: border-box;
+  position: relative; /* Ensure child elements can be positioned relative to this container */
+  width: 100%; /* Ensure the chat interface takes full width of the content container */
+}
+
+.content-filter {
+  position: fixed;
+  top: 0;
+  left: 250px; /* Align with the start of the content-container */
+  width: calc(100% - 250px); /* Take up the remaining width within the content container */
+  max-width: 80%; /* Limit width to 80% of the viewport width for centering */
+  display: flex;
+  justify-content: space-around;
+  padding: 10px;
+  background-color: #f1f1f1;
+  border-radius: 10px;
+  z-index: 1000; /* Ensure it stays on top */
+  margin-left: auto;
+  margin-right: auto;
+  right: 0;
 }
 
 .chat-container {
-  position: absolute;
   flex-grow: 1;
-  /* limit the height of the chat container */
-  max-height: calc(100% - 100px);
   overflow-y: auto;
   display: flex;
-  padding: 10px;
-  margin-top: 50px;
-  margin-left: 130px;
   flex-direction: column;
-  padding-bottom: 150px;
-  width: calc(100% - 300px); /* Adjust for menu width */
+  padding: 20px;
+  margin-top: 60px; /* Space for the fixed content filter */
+  width: 100%; /* Centered container takes up 80% width */
+  max-width: calc(100vw - 350px); /* Ensure it doesn't exceed the remaining content width */
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .function-entry-container {
   position: fixed;
-  bottom: 5px;
-  width: calc(100% - 520px); /* Adjust for menu width */
-  margin-left: 130px;
+  bottom: 0;
+  left: 250px; /* Align with the start of the content-container */
+  width: calc(100% - 250px); /* Take up the remaining width within the content container */
+  max-width: 80%; /* Limit width to 80% of the viewport width for centering */
   padding: 10px;
   background: #fff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   border-radius: 20px;
+  box-sizing: border-box; /* Ensure padding is included in width */
+  z-index: 1000; /* Ensure it stays on top */
+  margin-left: auto;
+  margin-right: auto;
+  right: 0;
 }
 
 .function-buttons {
@@ -370,8 +420,10 @@
   align-items: center;
   border: 1px solid #ccc;
   border-radius: 20px;
-  padding: 5px 10px;
-  position: relative;
+  padding: 10px 15px;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #f9f9f9;
 }
 
 .function-tag,
@@ -397,6 +449,9 @@ textarea {
   outline: none;
   resize: none;
   margin-right: 10px;
+  padding: 10px;
+  font-size: 16px;
+  min-height: 50px;
 }
 
 .send-button {
@@ -407,20 +462,10 @@ textarea {
 }
 
 .send-button i {
-  font-size: 20px;
+  font-size: 24px;
 }
 
-.selection-menu {
-  position: absolute;
-  background-color: white;
-  border: 1px solid #ccc;
-  padding: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-}
-.selection-menu button {
-  margin-right: 5px;
-}
+
 
 </style>
   
