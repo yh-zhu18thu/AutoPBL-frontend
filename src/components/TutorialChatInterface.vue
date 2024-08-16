@@ -37,18 +37,20 @@
           <button class="add-button" @click="addFunction">+</button>
         </div>
         <div class="input-container">
-          <div v-if="selectedFunction" class="function-tag">
-            {{ selectedFunction.label }}
-            <span @click="removeFunction">x</span>
-          </div>
           <div v-if="quote" class="quote-section">
             {{ quote }}
             <span @click="removeQuote">x</span>
           </div>
-          <textarea v-model="newMessage" placeholder="输入……" @keydown.enter="sendMessage"></textarea>
-          <button @click="sendMessage" class="send-button">
-            <i class="fas fa-paper-plane"></i>
-          </button>
+          <div class="input-row">
+            <div v-if="selectedFunction" class="function-tag">
+              {{ selectedFunction.label }}
+              <span @click="removeFunction">x</span>
+            </div>
+            <textarea v-model="newMessage" placeholder="输入……" @keydown.enter="sendMessage"></textarea>
+            <button @click="sendMessage" class="send-button">
+              <i class="fas fa-paper-plane">发送</i>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -354,8 +356,8 @@
   max-width: 80%; /* Limit width to 80% of the viewport width for centering */
   display: flex;
   justify-content: space-around;
+  margin-top: 20px;
   padding: 10px;
-  background-color: #f1f1f1;
   border-radius: 10px;
   z-index: 1000; /* Ensure it stays on top */
   margin-left: auto;
@@ -393,6 +395,7 @@
   z-index: 1000; /* Ensure it stays on top */
   margin-left: auto;
   margin-right: auto;
+  max-height: 200px;
   right: 0;
 }
 
@@ -417,10 +420,9 @@
   padding: 5px 10px;
   cursor: pointer;
 }
-
 .input-container {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   border: 1px solid #ccc;
   border-radius: 20px;
   padding: 10px 15px;
@@ -429,8 +431,13 @@
   background-color: #f9f9f9;
 }
 
-.function-tag,
-.quote-section {
+.input-row {
+  display: flex;
+  align-items: center;
+  margin-top: 10px; /* Space between quote and input row */
+}
+
+.function-tag {
   background: #f1f1f1;
   border-radius: 10px;
   margin-right: 10px;
@@ -439,7 +446,21 @@
   align-items: center;
 }
 
-.function-tag span,
+.function-tag span {
+  margin-left: 5px;
+  cursor: pointer;
+  color: #007bff;
+}
+
+.quote-section {
+  background: #f1f1f1;
+  border-radius: 10px;
+  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px; /* Space between quote and input row */
+}
+
 .quote-section span {
   margin-left: 5px;
   cursor: pointer;
@@ -451,21 +472,24 @@ textarea {
   border: none;
   outline: none;
   resize: none;
-  margin-right: 10px;
   padding: 10px;
   font-size: 16px;
   min-height: 50px;
+  border-radius: 10px;
+  margin-right: 10px;
 }
 
 .send-button {
-  background: none;
+  background-color: #007bff;
+  color: white;
   border: none;
-  color: #007bff;
+  border-radius: 10px;
+  padding: 10px;
   cursor: pointer;
 }
 
 .send-button i {
-  font-size: 24px;
+  font-size: 18px;
 }
 
 
