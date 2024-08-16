@@ -1,21 +1,34 @@
 <template>
-    <div class="menu">
-      <div class="menu-title">{{ tutorialTitle }}</div>
+  <div class="menu">
+    <div class="menu-title">{{ tutorialTitle }}</div>
+    <div class="menu-container">
       <div v-for="(item, index) in menuItems" :key="index" class="menu-item">
-        <div class="menu-item-title">
-          {{ item.name }}
-        </div>
-        <div v-if="item.sub_step_cnt>0" class="submenu">
-          <div v-for="(subItem, subIndex) in item.sub_steps" :key="subIndex" @click="selectSubItem(item,subItem)" :class="{'submenu-item': true, 'selected': item.index===stepId && subItem.index===subStepId}">
-            {{ subItem.name }}
+      <div class="menu-item-title">
+        {{ (item.index+1)+' '+item.name }}
+      </div>
+      <div v-if="item.sub_step_cnt>0" class="submenu">
+        <div
+          v-for="(subItem, subIndex) in item.sub_steps"
+          :key="subIndex"
+          @click="selectSubItem(item, subItem)"
+          :class="{'submenu-item': true, 'selected': item.index === stepId && subItem.index === subStepId}"
+        >
+          <div class="submenu-item-header">
+            <span class="submenu-item-index">{{ (item.index+1)+'.'+(subItem.index+1) }}</span>
+            <span class="submenu-item-name">{{ subItem.name }}</span>
           </div>
         </div>
       </div>
-      <button class="return-button" @click="goBack">
-        <i class="fas fa-arrow-left"></i> 返回
-      </button>
     </div>
-  </template>
+  </div>
+    <div class="progress-indicator">
+      已完成 {{ progress }}%
+    </div>
+    <button class="return-button" @click="goBack">
+      <i class="fas fa-arrow-left"></i> 返回
+    </button>
+  </div>
+</template>
   
   <script>
   import contentService from '@/services/contentService';
@@ -40,6 +53,8 @@
       return {
         tutorialTitle: '',
         menuItems: [],
+        progress: 25,
+        hoveredSubItem: null
       };
     },
     created() {
@@ -75,71 +90,138 @@
   </script>
   
   <style scoped>
-  .menu-title {
-    margin-top: 10px;
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 100px;
-    color: #8b8b8b;
-  }
-  .menu {
-    overflow-y: auto;
-    width: 200px;
-    background-color: #f8f9fa;
-    padding: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-  
-  .return-button {
-    display: flex;
-    align-items: center;
-    background: none;
-    border: none;
-    color: #007bff;
-    cursor: pointer;
-    font-size: 14px;
-    margin-bottom: 20px;
-  }
-  
-  .return-button i {
-    margin-right: 5px;
-  }
-  
-  .menu-item {
-    margin-bottom: 10px;
-  }
-  
-  .menu-item-title {
-    font-weight: bold;
-    cursor: pointer;
-    padding: 5px;
-    transition: background-color 0.2s;
-  }
-  
-  .menu-item-title.selected {
-    background-color: #8b8b8b;
-  }
-  
-  .submenu {
-    margin-left: 20px;
-    margin-top: 5px;
-  }
-  
-  .submenu-item {
-    cursor: pointer;
-    padding: 3px;
-    transition: background-color 0.2s;
-  }
-  
-  .submenu-item:hover {
-    background-color: #e9ecef;
-  }
+ .menu {
+  width: 220px;
+  background-color: #f4f4f4;
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
+  position: relative;
+}
 
-  .submenu-item.selected {
-    background-color: #8b8b8b;
-    color:#f8f9fa;
-  }
+.menu-title {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 30px;
+  color: #444444;
+}
 
-  
+.menu-container { 
+  position: fixed;
+  top:100px;
+  bottom:110px;
+  overflow-y: auto;
+}
+
+.menu-item {
+  margin-bottom: 20px;
+}
+
+.menu-item-title {
+  font-weight: normal;
+  padding: 5px 0;
+  font-size: 16px;
+  color: #000000;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.menu-item-title::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #444444;
+  margin-right: 10px;
+}
+
+.menu-item.selected .menu-item-title::before {
+  background-color: #007bff;
+}
+
+.submenu {
+  margin-left: 20px;
+  margin-top: 5px;
+}
+
+.submenu-item {
+  cursor: pointer;
+  padding: 5px;
+  font-size: 14px;
+  color: #444444;
+  transition: background-color 0.2s;
+}
+
+.submenu-item:hover {
+  background-color: #e9ecef;
+}
+
+.submenu-item.selected {
+  background-color: #007bff;
+  color: #ffffff;
+}
+
+.submenu-item-header {
+  display: flex;
+  align-items: center;
+}
+
+.submenu-item-index {
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+
+.submenu-item-name {
+  flex-grow: 1;
+}
+
+.submenu-item-overview {
+  font-size: 12px;
+  color: #777777; /* Lighter color for the overview text */
+  margin-top: 3px;
+  margin-left: 15px;
+}
+
+.return-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #aaaaaa;
+  border: #444444;
+  color: #e9ecef;
+  border-radius: 20%;
+  cursor: pointer;
+  font-size: 16px; /* Make button text larger */
+  border-radius: 25px; /* Round border */
+  padding: 10px 20px; /* Bigger padding for larger button */
+  width: 120px;
+  box-sizing: border-box;
+  position: fixed;
+  left: 50px;
+  bottom: 20px; /* Leave space for the progress indicator */
+}
+
+.return-button i {
+  margin-right: 5px;
+}
+
+.progress-indicator {
+  font-size: 18px;
+  color: #8b8b8b;
+  text-align: center;
+  position: fixed;
+  left: 60px;
+  bottom: 70px;
+  position: fixed;
+}
+
+.progress-indicator .percentage {
+  font-weight: bold;
+  color: #444444;
+}
+
+
   </style>
   

@@ -91,7 +91,6 @@
     width: calc(100vw - 250px); /* Take up the remaining width */
     height: 100vh; /* Full height for the content */
     background-color: #ffffff; /* Optional: background color for content */
-    overflow: auto; /* Enable scrolling within the content container if needed */
   }
 
   </style>

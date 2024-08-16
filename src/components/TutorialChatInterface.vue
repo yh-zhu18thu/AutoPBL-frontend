@@ -138,7 +138,7 @@
           this.selectedText = selection.toString();
           const rect = selection.getRangeAt(0).getBoundingClientRect();
           const offsetX = -300;
-          const offsetY = -100;
+          const offsetY = -20;
           const blockId = this.findBlockIdForSelection(selection.getRangeAt(0));
           if (blockId) {
             this.selectedBlockId = blockId;
@@ -365,15 +365,18 @@
 
 .chat-container {
   flex-grow: 1;
-  overflow-y: auto;
+  overflow-y:scroll;
   display: flex;
   flex-direction: column;
   padding: 20px;
-  margin-top: 60px; /* Space for the fixed content filter */
+  top: 10px; /* Space for the fixed content filter */
   width: 100%; /* Centered container takes up 80% width */
   max-width: calc(100vw - 350px); /* Ensure it doesn't exceed the remaining content width */
+  bottom: 200px;
   margin-left: auto;
   margin-right: auto;
+  margin-top:20px;
+  margin-bottom:200px;
 }
 
 .function-entry-container {
