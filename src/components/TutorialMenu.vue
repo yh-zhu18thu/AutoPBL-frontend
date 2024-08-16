@@ -10,8 +10,10 @@
         <div
           v-for="(subItem, subIndex) in item.sub_steps"
           :key="subIndex"
-          @click="selectSubItem(item, subItem)"
-          :class="{'submenu-item': true, 'selected': item.index === stepId && subItem.index === subStepId}"
+          @click="!isDisabled(item, subItem) && selectSubItem(item, subItem)"
+          :class="{'submenu-item': true, 
+                    'selected': item.index === stepId && subItem.index === subStepId,
+                    'disabled': isDisabled(item, subItem)}"
           :title="subItem.overview"
         >
           <div class="submenu-item-header">
@@ -87,6 +89,15 @@
         this.$emit('update-step-id', item.index);
         this.$emit('update-sub-step-id', subItem.index);
       },
+      isDisabled(item, subItem) {
+        if (item.index > this.stepId) {
+          return true;
+        }
+        if (item.index === this.stepId && subItem.index > this.subStepId) {
+          return true;
+        }
+        return false;
+      }
     },
   };
   </script>
@@ -155,6 +166,11 @@
   transition: background-color 0.2s;
 }
 
+.submenu-item.disabled {
+  color: grey;
+  pointer-events: none; /* This makes the item non-clickable */
+}
+
 .submenu-item:hover {
   background-color: #e9ecef;
 }
@@ -190,9 +206,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #aaaaaa;
+  background: #bbbbbb;
   border: #444444;
-  color: #e9ecef;
+  color: #ffffff;
   border-radius: 20%;
   cursor: pointer;
   font-size: 16px; /* Make button text larger */
