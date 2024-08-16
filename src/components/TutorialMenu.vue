@@ -12,6 +12,7 @@
           :key="subIndex"
           @click="selectSubItem(item, subItem)"
           :class="{'submenu-item': true, 'selected': item.index === stepId && subItem.index === subStepId}"
+          :title="subItem.overview"
         >
           <div class="submenu-item-header">
             <span class="submenu-item-index">{{ (item.index+1)+'.'+(subItem.index+1) }}</span>
@@ -32,6 +33,7 @@
   
   <script>
   import contentService from '@/services/contentService';
+
 
   export default {
     name: 'TutorialMenu',
@@ -221,7 +223,6 @@
   font-weight: bold;
   color: #444444;
 }
-
 
   </style>
   
