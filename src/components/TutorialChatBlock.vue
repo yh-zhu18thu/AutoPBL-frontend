@@ -1,72 +1,68 @@
 <template>
   <div :class="['chat-block', blockClass]">
-    <div class="chat-block-header">
+    <div :class="['chat-block-header', isTutorial ? 'tutorial' : 'user']">
       <img :src="portraitUrl" alt="Portrait" class="portrait" />
-      <div class="message-info">
-        <div class="block-id">{{ blockIdentifier }}</div>
-        <div class="percentage">{{ block.percentage }}%</div>
-      </div>
-    </div>
-    <div v-if="isTutorial" class="chat-block-content">
-      <div v-html="renderedMarkdown" class="tutorial-content"></div>
-      <div class="user-question">
-        <p>{{ block.data.user_input_content.desc }}</p>
-        <div v-if="block.data.user_input_content.type === 'multi_choice'">
-          <button 
-            v-for="choice,index in block.data.user_input_content.choices" 
-            :key="choice" 
-            class="choice-button" 
-            @click="handleUserMultiChoice(index)"
-            :class="{ 'selected-choice': selectedChoice === index , 'disabled-button': userAnswered}"
-            :disabled="userAnswered"
-          >
-            {{ choice }}
-          </button>
-        </div>
-        <div v-else-if="block.data.user_input_content.type === 'single_choice'">
-          <button 
-            class="choice-button" 
-            @click="handleUserSingleChoice"
-            :disabled="userAnswered"
-            :class="{ 'disabled-button': userAnswered}"
-          >
-            {{ block.data.user_input_content.choice }}
-          </button>
-        </div>
-        <div v-else-if="block.data.user_input_content.type === 'text_input'" class="text-input-section">
-          <input 
-            type="text"
-            v-model="userInput"
-            placeholder="输入你的答案..." 
-            :disabled="userAnswered"
-            :class="{ 'disabled-input': userAnswered}"
-          />
-          <button 
-            class="choice-button" 
-            @click="handleGPT"
-            :disabled="userAnswered"
-            :class="{ 'disabled-button': userAnswered, 'selected-choice': selectedTextInputType === 'gpt'}"
-          >
-            GPT帮我答
-          </button>
-          <button 
-            class="choice-button" 
-            @click="handleUserTextInput"
-            :disabled="userAnswered"
-            :class="{ 'disabled-button': userAnswered, 'selected-choice': selectedTextInputType === 'submit'}"
-          >
-            提交
-          </button>
+      <div v-if="isTutorial" class="chat-block-content">
+        <div v-html="renderedMarkdown" class="tutorial-content"></div>
+        <div class="user-question">
+          <p>{{ block.data.user_input_content.desc }}</p>
+          <div v-if="block.data.user_input_content.type === 'multi_choice'">
+            <button 
+              v-for="choice,index in block.data.user_input_content.choices" 
+              :key="choice" 
+              class="choice-button" 
+              @click="handleUserMultiChoice(index)"
+              :class="{ 'selected-choice': selectedChoice === index , 'disabled-button': userAnswered}"
+              :disabled="userAnswered"
+            >
+              {{ choice }}
+            </button>
+          </div>
+          <div v-else-if="block.data.user_input_content.type === 'single_choice'">
+            <button 
+              class="choice-button" 
+              @click="handleUserSingleChoice"
+              :disabled="userAnswered"
+              :class="{ 'disabled-button': userAnswered}"
+            >
+              {{ block.data.user_input_content.choice }}
+            </button>
+          </div>
+          <div v-else-if="block.data.user_input_content.type === 'text_input'" class="text-input-section">
+            <input 
+              type="text"
+              v-model="userInput"
+              placeholder="输入你的答案..." 
+              :disabled="userAnswered"
+              :class="{ 'disabled-input': userAnswered}"
+            />
+            <button 
+              class="choice-button" 
+              @click="handleGPT"
+              :disabled="userAnswered"
+              :class="{ 'disabled-button': userAnswered, 'selected-choice': selectedTextInputType === 'gpt'}"
+            >
+              GPT帮我答
+            </button>
+            <button 
+              class="choice-button" 
+              @click="handleUserTextInput"
+              :disabled="userAnswered"
+              :class="{ 'disabled-button': userAnswered, 'selected-choice': selectedTextInputType === 'submit'}"
+            >
+              提交
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-    <div v-else class="chat-block-content">
-      <div v-if="block.data.query_quote.has_quote" class="quote-content">
-        <p>{{ block.data.query_quote.quote_content.content }}</p>
-      </div>
-      <p>{{ block.data.query_input.input_content }}</p>
-      <div v-if="block.data.query_input.preset_function" class="function-tag">
-        {{ block.data.query_input.preset_function }}
+      <div v-else class="chat-block-content">
+        <div v-if="block.data.query_quote.has_quote" class="quote-content">
+          <p>{{ block.data.query_quote.quote_content.content }}</p>
+        </div>
+        <p>{{ block.data.query_input.input_content }}</p>
+        <div v-if="block.data.query_input.preset_function" class="function-tag">
+          {{ block.data.query_input.preset_function }}
+        </div>
       </div>
     </div>
   </div>
@@ -234,8 +230,15 @@ export default {
 
 .chat-block-header {
   display: flex;
-  align-items: center;
-  margin-bottom: 10px;
+  align-items: flex-start;
+}
+
+.chat-block-header.tutorial {
+  flex-direction: row;
+}
+
+.chat-block-header.user {
+  flex-direction: row-reverse;
 }
 
 .portrait {
