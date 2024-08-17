@@ -12,10 +12,10 @@
               :key="choice" 
               class="choice-button" 
               @click="handleUserMultiChoice(index)"
-              :class="{ 'selected-choice': selectedChoice === index , 'disabled-button': userAnswered}"
+              :class="{ 'selected-choice': selectedChoice === choice.choice_index , 'disabled-button': userAnswered}"
               :disabled="userAnswered"
             >
-              {{ choice }}
+              {{ choice.choice_content }}
             </button>
           </div>
           <div v-else-if="block.data.user_input_content.type === 'single_choice'">
@@ -104,6 +104,8 @@ export default {
           }else {
             this.userInput = '';
           }
+        }else if (userInputType === "multi_choice") {
+          this.selectedChoice = Number(userInputContent);
         }
       },
       deep: true
@@ -118,6 +120,8 @@ export default {
       } else {
         this.userInput = '';
       }
+    }else if (userInputType === "multi_choice") {
+      this.selectedChoice = Number(userInputContent);
     }
   },
   computed: {
@@ -178,7 +182,7 @@ export default {
       this.submitUserAnswer('multi_choice', choiceIndex);
     },
     submitUserAnswer: async function(type, answer){
-      alert('submitUserAnswer: ' + this.block.block_index.block_id + ', type: ' + type + ', answer: ' + answer);
+      //alert('submitUserAnswer: ' + this.block.block_index.block_id + ', type: ' + type + ', answer: ' + answer);
       const response = await contentService.postUserAnswer(type, answer, this.block.block_index.tutorial_id, this.block.block_index.block_id);
       if (response.status === "success") {
         this.updateBlock(response.confirmed_block);
@@ -248,52 +252,54 @@ export default {
   margin-right: 10px;
 }
 
-.message-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.block-id {
-  font-weight: bold;
-}
-
-.percentage {
-  color: #888;
-}
-
 .tutorial-content {
   margin-bottom: 10px;
 }
-
 .user-question {
-  margin-top: 10px;
+  margin-top: 20px;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
+  font-size: 16px;
+  color: #333;
 }
 
 .choice-button {
   background: #007bff;
   color: #fff;
   border: none;
-  border-radius: 5px;
-  padding: 5px 10px;
-  margin-right: 5px;
+  border-radius: 25px;
+  padding: 10px 20px;
+  margin-right: 10px;
+  margin-top: 10px;
   cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
 .choice-button:hover {
   background: #0056b3;
+  transform: translateY(-2px);
+}
+
+.choice-button:active {
+  transform: translateY(0);
 }
 
 .text-input-section {
   display: flex;
   align-items: center;
+  margin-top: 10px;
 }
 
 .text-input-section input {
   flex-grow: 1;
   border: 1px solid #ccc;
   border-radius: 5px;
-  padding: 5px;
-  margin-right: 5px;
+  padding: 10px;
+  margin-right: 10px;
+  font-size: 16px;
 }
 
 .quote-content {
@@ -307,9 +313,10 @@ export default {
 .function-tag {
   background: #007bff;
   color: #fff;
-  padding: 3px 8px;
+  padding: 5px 10px;
   border-radius: 5px;
   display: inline-block;
+  font-size: 14px;
 }
 
 .disabled-button {
@@ -326,6 +333,9 @@ export default {
 
 .selected-choice {
   border-color: blue; /* Change to your desired edge color */
+  border-width: 2px;
+  border-style: solid;
 }
+
 
 </style>

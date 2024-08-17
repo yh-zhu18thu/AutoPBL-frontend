@@ -18,8 +18,8 @@
         </div>
 
       <LoadingSpinner :show="isLoading" />
-      <div class="chat-container" @mouseup="handleSelection">
-          <SelectionMenu :showMenu="showMenu" :menuStyle="menuStyle" @menu-selection="handleMenuSelection" @close="showMenu = false"/>
+      <div class="chat-container" @mouseup="handleSelection" ref="chatContainer">
+        <SelectionMenu :showMenu="showMenu" :menuStyle="menuStyle" @menu-selection="handleMenuSelection" @close="showMenu = false"/>
         <TutorialChatBlock 
           v-for="(blk, index) in filteredChatBlocks" 
           :key="index" 
@@ -136,12 +136,20 @@
         this.initChatBlocks();
       }
     },
+    mounted() {
+      this.scrollToBottom();
+    },
     watch: {
       subStepId: function(newVal, oldVal) {
         this.debounceInitChatblocks();
       },
       stepId : function(newVal, oldVal) {
         this.debounceInitChatblocks();
+      },
+      filteredChatBlocks: function(newVal, oldVal) {
+        this.$nextTick(() => {
+          this.scrollToBottom();
+        });
       }
     },
     methods: {
@@ -352,6 +360,12 @@
       },
       isNewestBlock(blockId) {
         return this.maxBlockId <= blockId;
+      },
+      scrollToBottom() {
+        this.$nextTick(() => {
+          const chatContainer = this.$refs.chatContainer;
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        });
       },
     },
   };
