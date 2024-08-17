@@ -1,8 +1,25 @@
 <template>
     <div id="tutorial-page">
-      <TutorialMenu :tutorialId="currentTutorialId" :stepId="currentStepId" :subStepId="currentSubStepId" @update-step-id="updateCurrentStepId" @update-sub-step-id="updateCurrentSubStepId" class="menu-container"/>
+      <TutorialMenu 
+        :tutorialId="currentTutorialId" 
+        :stepId="currentStepId" 
+        :subStepId="currentSubStepId" 
+        :maxStepId="maxStepId"
+        :maxSubStepId="maxSubStepId"
+        @update-step-id="updateCurrentStepId" 
+        @update-sub-step-id="updateCurrentSubStepId" 
+        class="menu-container"/>
       <div class="content-container">
-        <TutorialChatInterface :tutorialId="currentTutorialId" :stepId="currentStepId" :subStepId="currentSubStepId" :blockId="currentBlockId"  @update-step-id="updateCurrentStepId" @update-sub-step-id="updateCurrentSubStepId" @update-block-id="updateCurrentBlockId" class="chat-container"/>
+        <TutorialChatInterface 
+          :tutorialId="currentTutorialId" 
+          :stepId="currentStepId" 
+          :subStepId="currentSubStepId" 
+          :blockId="currentBlockId"  
+          :maxBlockId="maxBlockId"
+          @update-step-id="updateCurrentStepId" 
+          @update-sub-step-id="updateCurrentSubStepId" 
+          @update-block-id="updateCurrentBlockId" 
+          class="chat-container"/>
       </div>
     </div>
   </template>
@@ -20,6 +37,9 @@
         currentStepId: null,
         currentSubStepId: null,
         currentBlockId: null,
+        maxBlockId: -1,
+        maxStepId: -1,
+        maxSubStepId: -1
       };
     },
     components: {
@@ -45,23 +65,41 @@
           this.currentStepId = 0;
           this.currentSubStepId = 0;
           this.currentBlockId = null;
+          this.maxStepId = 0;
+          this.maxSubStepId = 0;
         } else {
           // get the last block in response.blocks
           let lastBlock = response.blocks[blockLength - 1];
           this.currentStepId = Number(lastBlock.block_index.step_id);
           this.currentSubStepId = Number(lastBlock.block_index.sub_step_id);
           this.currentBlockId = Number(lastBlock.block_index.block_id);
+          this.maxBlockId = this.currentBlockId;
+          this.maxStepId = this.currentStepId;
+          this.maxSubStepId = this.currentSubStepId;
         }
       },
       updateCurrentStepId(stepId) {
+        //alert('updateCurrentStepId: ' + stepId);
         this.currentStepId = stepId;
+        if (stepId > this.maxStepId) {
+          this.maxStepId = stepId;
+        }
+        alert('maxStepId: ' + this.maxStepId);
       },
       updateCurrentSubStepId(subStepId) {
         //alert('updateCurrentSubStepId: ' + subStepId);
         this.currentSubStepId = subStepId;
+        if (this.currentStepId == this.maxStepId && subStepId > this.maxSubStepId) {
+          this.maxSubStepId = subStepId;
+        }
+        alert('maxSubStepId: ' + this.maxSubStepId);
       },
       updateCurrentBlockId(blockId) {
-        this.currentBlockId = blockId;
+        this.currentBlockId = blockId
+        if (blockId > this.maxBlockId) {
+          this.maxBlockId = blockId;
+        }
+        alert('updateCurrentBlockId: ' + blockId+ ', maxBlockId: ' + this.maxBlockId);
       }
     },
   };

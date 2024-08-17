@@ -24,8 +24,9 @@
           v-for="(blk, index) in filteredChatBlocks" 
           :key="index" 
           :block="blk" 
+          :is-newest-block="isNewestBlock"
           @update-block-id="towardsNextBlock" 
-          @update-block="updateBlock" 
+          @update-block="updateBlock"
           ref="chatBlocks"
         />
       </div>
@@ -71,15 +72,19 @@
         },
         stepId: {
             type: Number,
-            required: false
+            required: true
         },
         subStepId: {
             type: Number,
-            required: false
+            required: true
         },
         blockId: {
             type: Number,
-            required: false
+            required: true 
+        },
+        maxBlockId: {
+            type: Number,
+            required: true
         }
     },
     components: {
@@ -96,7 +101,8 @@
         } else if (this.contentFilter === 'query') {
           return this.chatBlocks.filter(block => block.block_type != 'tutorial');
         }
-      }
+      },
+      
     },
     data() {
       return {
@@ -131,7 +137,10 @@
     watch: {
       subStepId: function(newVal, oldVal) {
         this.initChatBlocks();
-      }
+      },
+      stepId : function(newVal, oldVal) {
+        this.initChatBlocks();
+      },
     },
     methods: {
       handleSelection() {
@@ -221,6 +230,8 @@
             const response = await contentService.getSubStepBlocks(this.tutorialId, this.stepId, this.subStepId);
             if (response.status === "success") {
               this.chatBlocks = response.blocks;
+              const blockId = response.blocks[response.blocks.length - 1].block_index.block_id;
+              this.updateBlockId(blockId);
             }else {
               if (response.status === "fail") {
                 alert(response.info);
@@ -322,6 +333,7 @@
         this.$emit('update-sub-step-id', subStepId);
       },
       updateBlockId(blockId) {
+        //alert('updateBlockId: ' + blockId);
         this.$emit('update-block-id', blockId);
       },
       updateBlock(block){
@@ -332,7 +344,10 @@
             break;
           }
         }
-      }
+      },
+      isNewestBlock(blockId) {
+        return this.maxBlockId <= blockId;
+      },
     },
   };
   </script>

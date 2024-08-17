@@ -51,6 +51,14 @@
         subStepId: {
             type: Number,
             required: false
+        },
+        maxStepId: {
+            type: Number,
+            required: false
+        },
+        maxSubStepId: {
+            type: Number,
+            required: false
         }
     },
     data() {
@@ -90,10 +98,10 @@
         this.$emit('update-sub-step-id', subItem.index);
       },
       isDisabled(item, subItem) {
-        if (item.index > this.stepId) {
+        if (item.index > this.maxStepId) {
           return true;
         }
-        if (item.index === this.stepId && subItem.index > this.subStepId) {
+        if (item.index === this.maxStepId && subItem.index > this.maxSubStepId) {
           return true;
         }
         return false;

@@ -84,6 +84,10 @@ export default {
     block: {
       type: Object,
       required: true
+    },
+    isNewestBlock: {
+      type: Function,
+      default: true
     }
   },
   data() {
@@ -95,6 +99,10 @@ export default {
   },
   computed: {
     userAnswered() {
+      const isNewest = this.isNewestBlock(this.block.block_index.block_id);
+      if (!isNewest) {
+        return true;
+      }
       const userInputContent = this.block.data.user_input_content.user_input;
       const userInputType = this.block.data.user_input_content.type;
       if (userInputType=="text_input") {
