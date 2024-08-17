@@ -84,7 +84,7 @@
         if (stepId > this.maxStepId) {
           this.maxStepId = stepId;
         }
-        alert('maxStepId: ' + this.maxStepId);
+        //alert('maxStepId: ' + this.maxStepId);
       },
       updateCurrentSubStepId(subStepId) {
         //alert('updateCurrentSubStepId: ' + subStepId);
@@ -92,14 +92,14 @@
         if (this.currentStepId == this.maxStepId && subStepId > this.maxSubStepId) {
           this.maxSubStepId = subStepId;
         }
-        alert('maxSubStepId: ' + this.maxSubStepId);
+        //alert('maxSubStepId: ' + this.maxSubStepId);
       },
       updateCurrentBlockId(blockId) {
         this.currentBlockId = blockId
         if (blockId > this.maxBlockId) {
           this.maxBlockId = blockId;
         }
-        alert('updateCurrentBlockId: ' + blockId+ ', maxBlockId: ' + this.maxBlockId);
+        //alert('updateCurrentBlockId: ' + blockId+ ', maxBlockId: ' + this.maxBlockId);
       }
     },
   };

@@ -36,7 +36,7 @@
         <div v-else-if="block.data.user_input_content.type === 'text_input'" class="text-input-section">
           <input 
             type="text"
-            v-model="userInput" 
+            v-model="userInput"
             placeholder="输入你的答案..." 
             :disabled="userAnswered"
             :class="{ 'disabled-input': userAnswered}"
@@ -92,10 +92,37 @@ export default {
   },
   data() {
     return {
-      userInput: this.userAnswerContent(),
+      userInput: '',
       selectedChoice: -1,
       selectedTextInputType: '',
     };
+  },
+  watch: {
+    block: {
+      handler: function(newBlock) {
+        const userInputContent = this.block.data.user_input_content.user_input;
+        const userInputType = this.block.data.user_input_content.type;
+        if (userInputType === "text_input") {
+          if (userInputContent !== 'PLACEHOLDER') {
+            this.userInput = userInputContent; // Initialize with past input
+          }else {
+            this.userInput = '';
+          }
+        }
+      },
+      deep: true
+    }
+  },
+  mounted() {
+    const userInputContent = this.block.data.user_input_content.user_input;
+    const userInputType = this.block.data.user_input_content.type;
+    if (userInputType === "text_input") {
+      if (userInputContent !== 'PLACEHOLDER') {
+        this.userInput = userInputContent; // Initialize with past input
+      } else {
+        this.userInput = '';
+      }
+    }
   },
   computed: {
     userAnswered() {
@@ -134,19 +161,6 @@ export default {
     console.log('block',this.block);
   },
   methods: {
-    userAnswerContent() {
-      const userInputContent = this.block.data.user_input_content.user_input;
-      const userInputType = this.block.data.user_input_content.type;
-      if (userInputType=="text_input") {
-        if (userInputContent == 'PLACEHOLDER') {
-          return '';
-        } else {
-          return userInputContent;
-        }
-      } else {
-        return '';
-      }
-    },
     handleGPT() {
       // Handle GPT response
       this.selectedTextInputType = 'gpt';
