@@ -178,7 +178,7 @@ export default {
       this.submitUserAnswer('multi_choice', choiceIndex);
     },
     submitUserAnswer: async function(type, answer){
-      //alert('submitUserAnswer: ' + this.block.block_index.block_id + ', type: ' + type + ', answer: ' + answer);
+      alert('submitUserAnswer: ' + this.block.block_index.block_id + ', type: ' + type + ', answer: ' + answer);
       const response = await contentService.postUserAnswer(type, answer, this.block.block_index.tutorial_id, this.block.block_index.block_id);
       if (response.status === "success") {
         this.updateBlock(response.confirmed_block);

@@ -33,7 +33,7 @@
     name: 'TutorialPage',
     data() {
       return {
-        currentTutorialId: Number(this.$route.params.tutorial_id) || null,
+        currentTutorialId: Number(this.$route.params.tutorial_id),
         currentStepId: null,
         currentSubStepId: null,
         currentBlockId: null,
@@ -62,6 +62,7 @@
         let blockLength = Number(response.length);
         //console.log('block', response);
         if (blockLength == 0) {
+          //alert('No block found');
           this.currentStepId = 0;
           this.currentSubStepId = 0;
           this.currentBlockId = null;
@@ -69,6 +70,7 @@
           this.maxSubStepId = 0;
         } else {
           // get the last block in response.blocks
+          //alert('blockLength: ' + blockLength);
           let lastBlock = response.blocks[blockLength - 1];
           this.currentStepId = Number(lastBlock.block_index.step_id);
           this.currentSubStepId = Number(lastBlock.block_index.sub_step_id);

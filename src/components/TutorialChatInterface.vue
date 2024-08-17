@@ -59,6 +59,7 @@
   
   <script>
   import {default as TutorialChatBlock} from './TutorialChatBlock.vue';
+  import {debounce} from 'lodash';
   import contentService from '@/services/contentService';
   import LoadingSpinner from './LoadingSpinner.vue';
   import SelectionMenu from './SelectionMenu.vue';
@@ -127,6 +128,7 @@
         selectedBlockId: null,
         quoteBlockId: null,
         contentFilter: 'all',
+        total_steps: 0,
       };
     },
     created() {
@@ -136,11 +138,11 @@
     },
     watch: {
       subStepId: function(newVal, oldVal) {
-        this.initChatBlocks();
+        this.debounceInitChatblocks();
       },
       stepId : function(newVal, oldVal) {
-        this.initChatBlocks();
-      },
+        this.debounceInitChatblocks();
+      }
     },
     methods: {
       handleSelection() {
@@ -204,6 +206,9 @@
       addToCollection() {
         // Logic to add selected text to collection
       },
+      debounceInitChatblocks: debounce(function() {
+        this.initChatBlocks();
+      }, 300),
       initChatBlocks: async function() {
         //call get substep chat blocks
         //alert('initChatBlocks, subStepId: ' + this.subStepId + ', stepId: ' + this.stepId + ', blockId: ' + this.blockId);
