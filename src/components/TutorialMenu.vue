@@ -121,10 +121,15 @@
 }
 
 .menu-title {
-  font-size: 22px;
+  font-size: 20px; /* Slightly reduce the font size to accommodate longer titles */
   font-weight: bold;
+  margin-top: 15px;
   margin-bottom: 30px;
+  margin-right: 10px;
   color: #444444;
+  white-space: normal; /* Allow the text to wrap */
+  word-break: break-word; /* Break words if they are too long to fit */
+  line-height: 1.2; /* Adjust line height for better readability */
 }
 
 .menu-container { 
