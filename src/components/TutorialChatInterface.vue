@@ -155,12 +155,15 @@
     methods: {
       handleSelection() {
         const selection = window.getSelection();
+        //alert('selection: ' + selection.toString());
         if (selection.toString().length > 0) {
           this.selectedText = selection.toString();
           const rect = selection.getRangeAt(0).getBoundingClientRect();
           const offsetX = -300;
           const offsetY = -20;
-          const blockId = this.findBlockIdForSelection(selection.getRangeAt(0));
+          const blockIndex = this.findBlockIdForSelection(selection.getRangeAt(0));
+          //alert('blockIndex: ' + blockIndex);
+          const blockId = this.chatBlocks[blockIndex].block_index.block_id;
           if (blockId) {
             this.selectedBlockId = blockId;
             this.menuStyle.top = `${rect.bottom + window.scrollY+offsetY}px`;
@@ -173,20 +176,23 @@
       },
       findBlockIdForSelection(range) {
         const rangeRect = range.getBoundingClientRect();
+        //alert('rangeRect: ' + rangeRect.top + ', ' + rangeRect.bottom + ', ' + rangeRect.left + ', ' + rangeRect.right);
         const blocks = this.$refs.chatBlocks;
+        console.log('*blocks', blocks.map(block => block.$el));
         for (let i = 0; i < blocks.length; i++) {
           const blockElement = blocks[i].$el;
           const blockRange = document.createRange();
           blockRange.selectNodeContents(blockElement);
           // Check if the selection range intersects with the block range
-          const bounding_rect = range.getBoundingClientRect();
+          const bounding_rect = blockRange.getBoundingClientRect();
+          //alert('bounding_rect: ' + bounding_rect.top + ', ' + bounding_rect.bottom + ', ' + bounding_rect.left + ', ' + bounding_rect.right);
           if (
             rangeRect.top <= bounding_rect.bottom &&
             rangeRect.bottom >= bounding_rect.top &&
             rangeRect.left <= bounding_rect.right &&
             rangeRect.right >= bounding_rect.left
           ) {
-            return blocks[i].block.block_index.block_id;  // Return the index (or block ID)
+            return i;
           }
         }
         return null;  // No matching block found

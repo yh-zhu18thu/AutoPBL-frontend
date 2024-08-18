@@ -77,7 +77,10 @@ import prism from "prismjs";
 import "prismjs/plugins/line-numbers/prism-line-numbers.js";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 
-
+import "prismjs/plugins/toolbar/prism-toolbar.js"; // required for the following plugins
+import "prismjs/plugins/toolbar/prism-toolbar.css"; // required for the following plugins
+import "prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard.js"; // show copy button
+import "prismjs/plugins/show-language/prism-show-language.js"; // display the language of the code block
 
 // Load the languages you need
 import "prismjs/components/prism-python";
