@@ -3,7 +3,7 @@
     <div :class="['chat-block-header', isTutorial ? 'tutorial' : 'user']">
       <img :src="portraitUrl" alt="Portrait" class="portrait" />
       <div v-if="isTutorial" class="chat-block-content">
-        <div v-html="renderedMarkdown" class="tutorial-content"></div>
+        <div v-html="renderedMarkdown" class="tutorial-content line-numbers language-markup" ></div>
         <div class="user-question">
           <p>{{ block.data.user_input_content.desc }}</p>
           <div v-if="block.data.user_input_content.type === 'multi_choice'">
@@ -68,11 +68,40 @@
   </div>
 </template>
 
+
+<script setup>
+import { marked } from "marked";
+import prism from "prismjs";
+
+// Add numbering to the Code blocks
+import "prismjs/plugins/line-numbers/prism-line-numbers.js";
+import "prismjs/plugins/line-numbers/prism-line-numbers.css";
+
+
+
+// Load the languages you need
+import "prismjs/components/prism-python";
+import "prismjs/components/prism-bash";
+
+marked.use({
+  highlight: (code, lang) => {
+    if (prism.languages[lang]) {
+      return prism.highlight(code, prism.languages[lang], lang);
+    } else {
+      return code;
+    }
+  },
+});
+
+prism.highlightAll();
+</script>
+
+
 <script>
-import {marked} from 'marked';
 import robotLogo from '@/assets/robot.png';
 import studentLogo from '@/assets/student.png';
 import contentService from '@/services/contentService';
+
 
 export default {
   name: 'TutorialChatBlock',
@@ -123,6 +152,7 @@ export default {
     }else if (userInputType === "multi_choice") {
       this.selectedChoice = Number(userInputContent);
     }
+    prism.highlightAll();
   },
   computed: {
     userAnswered() {
@@ -154,7 +184,9 @@ export default {
       return `${step_id}.${sub_step_id}.${block_id}`;
     },
     renderedMarkdown() {
-      return marked(this.block.data.content);
+      prism.highlightAll();
+      //alert('renderedMarkdown: ' + this.block.data.content);
+      return marked.parse(this.block.data.content);
     }
   },
   created() {
@@ -207,7 +239,12 @@ export default {
 };
 </script>
 
+<style>
+@import "prismjs/themes/prism-tomorrow.min.css"; 
+</style>
+
 <style scoped>
+
 .chat-block {
   display: flex;
   flex-direction: column;
