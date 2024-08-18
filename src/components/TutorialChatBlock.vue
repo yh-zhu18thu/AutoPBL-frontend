@@ -154,6 +154,9 @@ export default {
     }
     prism.highlightAll();
   },
+  updated() {
+    prism.highlightAll();
+  },
   computed: {
     userAnswered() {
       const isNewest = this.isNewestBlock(this.block.block_index.block_id);
