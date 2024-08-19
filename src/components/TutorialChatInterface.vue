@@ -322,6 +322,8 @@
             chatContainer.scrollTop = chatContainer.scrollHeight;
           });
           if (response.status === "success") {
+            const confirmedBlock = response.confirmed_block;
+            this.chatBlocks.push(confirmedBlock);
             const nextBlockId = response.next_block_id;
             this.updateBlockId(nextBlockId);
             this.getNextBlock();

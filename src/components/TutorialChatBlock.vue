@@ -5,7 +5,7 @@
       <div v-if="isTutorial" class="chat-block-content">
         <div v-html="renderedMarkdown" class="tutorial-content line-numbers language-markup" ></div>
         <div class="user-question">
-          <p>{{ block.data.user_input_content.desc }}</p>
+          <div class="question-content" v-html="renderedQuestionMarkdown"></div>
           <div v-if="block.data.user_input_content.type === 'multi_choice'">
             <button 
               v-for="choice,index in block.data.user_input_content.choices" 
@@ -60,7 +60,7 @@
           <p>{{ block.data.query_quote.quote_content.content }}</p>
         </div>
         <p>{{ block.data.query_input.input_content }}</p>
-        <div v-if="block.data.query_input.preset_function" class="function-tag">
+        <div v-if="block.data.query_input.preset_function!='null'" class="function-tag">
           {{ block.data.query_input.preset_function }}
         </div>
       </div>
@@ -128,32 +128,36 @@ export default {
   watch: {
     block: {
       handler: function(newBlock) {
-        const userInputContent = this.block.data.user_input_content.user_input;
-        const userInputType = this.block.data.user_input_content.type;
-        if (userInputType === "text_input") {
-          if (userInputContent !== 'PLACEHOLDER') {
-            this.userInput = userInputContent; // Initialize with past input
-          }else {
-            this.userInput = '';
+        if(this.isTutorial){
+          const userInputContent = this.block.data.user_input_content.user_input;
+          const userInputType = this.block.data.user_input_content.type;
+          if (userInputType === "text_input") {
+            if (userInputContent !== 'PLACEHOLDER') {
+              this.userInput = userInputContent; // Initialize with past input
+            }else {
+              this.userInput = '';
+            }
+          }else if (userInputType === "multi_choice") {
+            this.selectedChoice = Number(userInputContent);
           }
-        }else if (userInputType === "multi_choice") {
-          this.selectedChoice = Number(userInputContent);
         }
       },
       deep: true
     }
   },
   mounted() {
-    const userInputContent = this.block.data.user_input_content.user_input;
-    const userInputType = this.block.data.user_input_content.type;
-    if (userInputType === "text_input") {
-      if (userInputContent !== 'PLACEHOLDER') {
-        this.userInput = userInputContent; // Initialize with past input
-      } else {
-        this.userInput = '';
+    if (this.isTutorial){
+      const userInputContent = this.block.data.user_input_content.user_input;
+      const userInputType = this.block.data.user_input_content.type;
+      if (userInputType === "text_input") {
+        if (userInputContent !== 'PLACEHOLDER') {
+          this.userInput = userInputContent; // Initialize with past input
+        } else {
+          this.userInput = '';
+        }
+      }else if (userInputType === "multi_choice") {
+        this.selectedChoice = Number(userInputContent);
       }
-    }else if (userInputType === "multi_choice") {
-      this.selectedChoice = Number(userInputContent);
     }
     prism.highlightAll();
   },
@@ -193,6 +197,9 @@ export default {
       prism.highlightAll();
       //alert('renderedMarkdown: ' + this.block.data.content);
       return marked.parse(this.block.data.content);
+    },
+    renderedQuestionMarkdown() {
+      return marked.parse(this.block.data.user_input_content.desc);
     }
   },
   created() {
@@ -297,6 +304,12 @@ export default {
 
 .tutorial-content {
   margin-bottom: 10px;
+  max-width: 90%;
+}
+
+.question-content{
+  margin-bottom: 10px;
+  max-width: 90%;
 }
 .user-question {
   margin-top: 20px;
@@ -307,6 +320,7 @@ export default {
   font-family: 'Arial', sans-serif;
   font-size: 16px;
   color: #333;
+  max-width: 85%;
 }
 
 .choice-button {
@@ -334,6 +348,7 @@ export default {
   display: flex;
   align-items: center;
   margin-top: 10px;
+  max-width: 90%;
 }
 
 .text-input-section input {
