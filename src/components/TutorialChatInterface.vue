@@ -48,7 +48,10 @@
               <span @click="removeFunction">x</span>
             </div>
             <textarea v-model="newMessage" placeholder="输入……" @keydown.enter="sendMessage"></textarea>
-            <button @click="sendMessage" class="send-button">
+            <button 
+              @click="sendMessage" 
+              :disabled="messageOntheWay"
+              class="send-button">
               <i class="fas fa-paper-plane">发送</i>
             </button>
           </div>
@@ -129,6 +132,7 @@
         quoteBlockId: null,
         contentFilter: 'all',
         total_steps: 0,
+        messageOntheWay: false,
       };
     },
     created() {
@@ -308,6 +312,8 @@
       },
       sendMessage: async function() {
         if (this.newMessage.trim()) {
+          //disable the send button
+          this.messageOntheWay = true;
           const hasQuote = this.quote?1: 0;
           //alert('quote content'+this.quote+'has quote'+hasQuote+'quote block id'+this.quoteBlockId);
           //console.log('tutorialId', this.tutorialId, 'stepId', this.stepId, 'subStepId', this.subStepId, 'blockId', this.blockId, 'newMessage', this.newMessage, 'selectedFunction', this.selectedFunction, 'hasQuote', hasQuote, 'quote', this.quote, 'quoteBlockId', this.quoteBlockId);
@@ -327,6 +333,7 @@
             this.chatBlocks.push(confirmedBlock);
             const nextBlockId = response.next_block_id;
             this.updateBlockId(nextBlockId);
+            this.messageOntheWay = false;
             this.getNextBlock();
           }else {
             if (response.status === "fail") {
@@ -334,6 +341,7 @@
             } else {
               alert('Failed to submit user query');
             }
+            this.messageOntheWay = false;
           }
         }
       },
