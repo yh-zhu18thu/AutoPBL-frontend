@@ -68,9 +68,9 @@
   </div>
 </template>
 
-
 <script setup>
 import { marked } from "marked";
+import markedKatex from "marked-katex-extension";
 import prism from "prismjs";
 
 // Add numbering to the Code blocks
@@ -86,174 +86,191 @@ import "prismjs/plugins/show-language/prism-show-language.js"; // display the la
 import "prismjs/components/prism-python";
 import "prismjs/components/prism-bash";
 
-marked.use({
-  highlight: (code, lang) => {
-    if (prism.languages[lang]) {
-      return prism.highlight(code, prism.languages[lang], lang);
-    } else {
-      return code;
-    }
-  },
-});
+ // This is needed if you have a conflict with other loaded CSS imports (i.e. Bulma).
+import "prismjs/plugins/custom-class/prism-custom-class";
+prism.plugins.customClass.map({ number: "prism-number", tag: "prism-tag" });
 
-prism.highlightAll();
-</script>
+//alert('marked');
+
+const options = {
+  throwOnError: true,
+  output: 'mathml',
+  delimiters: [
+    {left: "$$", right: "$$", display: true},
+    {left: "\\(", right: "\\)", display: true},
+    {left: "\\begin{equation}", right: "\\end{equation}", display: true},
+    {left: "\\begin{align}", right: "\\end{align}", display: true},
+    {left: "\\begin{alignat}", right: "\\end{alignat}", display: true},
+    {left: "\\begin{gather}", right: "\\end{gather}", display: true},
+    {left: "\\begin{CD}", right: "\\end{CD}", display: true},
+    {left: "\\[", right: "\\]", display: true},
+    {left: "$", right: "$", display: true},
+    {left: "\\(", right: "\\)", display: true},
+    {left: "\\[", right: "\\]", display: true}
+  ]
+};
+
+marked.use(markedKatex(options));
 
 
-<script>
+import { ref, watch, computed, onMounted } from 'vue';
 import robotLogo from '@/assets/robot.png';
 import studentLogo from '@/assets/student.png';
 import contentService from '@/services/contentService';
 
+// Props
+const props = defineProps({
+  block: {
+    type: Object,
+    required: true
+  },
+  isNewestBlock: {
+    type: Function,
+    default: () => true
+  }
+});
 
-export default {
-  name: 'TutorialChatBlock',
-  props: {
-    block: {
-      type: Object,
-      required: true
-    },
-    isNewestBlock: {
-      type: Function,
-      default: true
-    }
-  },
-  data() {
-    return {
-      userInput: '',
-      selectedChoice: -1,
-      selectedTextInputType: '',
-    };
-  },
-  watch: {
-    block: {
-      handler: function(newBlock) {
-        if(this.isTutorial){
-          const userInputContent = this.block.data.user_input_content.user_input;
-          const userInputType = this.block.data.user_input_content.type;
-          if (userInputType === "text_input") {
-            if (userInputContent !== 'PLACEHOLDER') {
-              this.userInput = userInputContent; // Initialize with past input
-            }else {
-              this.userInput = '';
-            }
-          }else if (userInputType === "multi_choice") {
-            this.selectedChoice = Number(userInputContent);
-          }
-        }
-      },
-      deep: true
-    }
-  },
-  mounted() {
-    if (this.isTutorial){
-      const userInputContent = this.block.data.user_input_content.user_input;
-      const userInputType = this.block.data.user_input_content.type;
-      if (userInputType === "text_input") {
-        if (userInputContent !== 'PLACEHOLDER') {
-          this.userInput = userInputContent; // Initialize with past input
-        } else {
-          this.userInput = '';
-        }
-      }else if (userInputType === "multi_choice") {
-        this.selectedChoice = Number(userInputContent);
+// Data (using ref and reactive for reactivity)
+const userInput = ref('');
+const selectedChoice = ref(-1);
+const selectedTextInputType = ref('');
+
+// Computed properties
+const isTutorial = computed(() => props.block.block_type != 'user_query');
+
+const blockClass = computed(() => (isTutorial.value ? 'tutorial-block' : 'user-block'));
+
+const portraitUrl = computed(() => (isTutorial.value ? robotLogo : studentLogo));
+
+const blockIdentifier = computed(() => {
+  const { step_id, sub_step_id, block_id } = props.block.block_index;
+  return `${step_id}.${sub_step_id}.${block_id}`;
+});
+
+const userAnswered = computed(() => {
+  const isNewest = props.isNewestBlock(props.block.block_index.block_id);
+  if (!isNewest) return true;
+
+  const userInputContent = props.block.data.user_input_content.user_input;
+  const userInputType = props.block.data.user_input_content.type;
+
+  if (userInputType === 'text_input') {
+    return userInputContent !== 'PLACEHOLDER';
+  } else if (userInputType === 'single_choice') {
+    return userInputContent !== false;
+  } else if (userInputType === 'multi_choice') {
+    return userInputContent !== -1;
+  }
+  return false;
+});
+
+const renderedMarkdown = computed(() => {
+  //alert('renderedMarkdown: ' + props.block.data.content);
+  const html =  marked.parse(props.block.data.content);
+  //const html = props.block.data.content;
+  //postpone prism.highlightAll();
+  setTimeout(() => {
+    prism.highlightAll();
+  }, 50);
+  return html;
+});
+
+
+const renderedQuestionMarkdown = computed(() => {
+  //alert('renderedQuestionMarkdown: ' + props.block.data.user_input_content.desc);
+  const html =  marked.parse(props.block.data.user_input_content.desc);
+  //const html = props.block.data.user_input_content.desc;
+  setTimeout(() => {
+    prism.highlightAll();
+  }, 50);
+  return html;
+});
+
+// Watcher
+watch(
+  () => props.block,
+  (newBlock) => {
+    if (isTutorial.value) {
+      const userInputContent = newBlock.data.user_input_content.user_input;
+      const userInputType = newBlock.data.user_input_content.type;
+
+      if (userInputType === 'text_input') {
+        userInput.value = userInputContent !== 'PLACEHOLDER' ? userInputContent : '';
+      } else if (userInputType === 'multi_choice') {
+        selectedChoice.value = Number(userInputContent);
       }
     }
     prism.highlightAll();
   },
-  updated() {
-    prism.highlightAll();
-  },
-  computed: {
-    userAnswered() {
-      const isNewest = this.isNewestBlock(this.block.block_index.block_id);
-      if (!isNewest) {
-        return true;
-      }
-      const userInputContent = this.block.data.user_input_content.user_input;
-      const userInputType = this.block.data.user_input_content.type;
-      if (userInputType=="text_input") {
-        return userInputContent != 'PLACEHOLDER';
-      } else if (userInputType=="single_choice") {
-        return userInputContent != false;
-      } else if (userInputType=="multi_choice") {
-        return userInputContent != -1;
-      }
-    },
-    isTutorial() {
-      return this.block.block_type != 'user_query';
-    },
-    blockClass() {
-      return this.isTutorial ? 'tutorial-block' : 'user-block';
-    },
-    portraitUrl() {
-      return this.isTutorial ?  robotLogo : studentLogo;
-    },
-    blockIdentifier() {
-      const { step_id, sub_step_id, block_id } = this.block.block_index;
-      return `${step_id}.${sub_step_id}.${block_id}`;
-    },
-    renderedMarkdown() {
-      prism.highlightAll();
-      //alert('renderedMarkdown: ' + this.block.data.content);
-      return marked.parse(this.block.data.content);
-    },
-    renderedQuestionMarkdown() {
-      return marked.parse(this.block.data.user_input_content.desc);
-    }
-  },
-  created() {
-    console.log('block',this.block);
-  },
-  methods: {
-    handleGPT() {
-      // Handle GPT response
-      this.selectedTextInputType = 'gpt';
-      console.log('GPT帮我答');
-    },
-    handleUserTextInput() {
-      // Handle submit
-      this.selectedTextInputType = 'submit';
-      this.submitUserAnswer('text_input', this.userInput);
-    },
-    handleUserSingleChoice() {
-      // Handle user single choice
-      this.submitUserAnswer('single_choice', '');
-      
-    },
-    handleUserMultiChoice(choiceIndex) {
-      // Handle user multi choice
-      this.selectedChoice = choiceIndex;
-      this.submitUserAnswer('multi_choice', choiceIndex);
-    },
-    submitUserAnswer: async function(type, answer){
-      //alert('submitUserAnswer: ' + this.block.block_index.block_id + ', type: ' + type + ', answer: ' + answer);
-      const response = await contentService.postUserAnswer(type, answer, this.block.block_index.tutorial_id, this.block.block_index.block_id);
-      if (response.status === "success") {
-        this.updateBlock(response.confirmed_block);
-        this.updateBlockId(response.next_block_id);
-      } else {
-        if (response.status === "fail") {
-          alert(response.info);
-        } else {
-          alert('Failed to submit user answer');
-        }
-      }
-    },
-    updateBlock(block){
-      //alert('updateBlock: ' + JSON.stringify(block));
-      this.$emit('update-block', block);
-    },
-    updateBlockId(newBlockId){
-      //alert('updateBlockId: ' + newBlockId);
-      this.$emit('update-block-id', newBlockId);
+  { deep: true }
+);
+
+// Lifecycle hooks
+onMounted(() => {
+  if (isTutorial.value) {
+    const userInputContent = props.block.data.user_input_content.user_input;
+    const userInputType = props.block.data.user_input_content.type;
+
+    if (userInputType === 'text_input') {
+      userInput.value = userInputContent !== 'PLACEHOLDER' ? userInputContent : '';
+    } else if (userInputType === 'multi_choice') {
+      selectedChoice.value = Number(userInputContent);
     }
   }
+  prism.highlightAll();
+});
+
+// Methods
+const handleGPT = () => {
+  selectedTextInputType.value = 'gpt';
+  console.log('GPT帮我答');
 };
+
+const handleUserTextInput = () => {
+  selectedTextInputType.value = 'submit';
+  submitUserAnswer('text_input', userInput.value);
+};
+
+const handleUserSingleChoice = () => {
+  submitUserAnswer('single_choice', '');
+};
+
+const handleUserMultiChoice = (choiceIndex) => {
+  selectedChoice.value = choiceIndex;
+  submitUserAnswer('multi_choice', choiceIndex);
+};
+
+const submitUserAnswer = async (type, answer) => {
+  const response = await contentService.postUserAnswer(
+    type,
+    answer,
+    props.block.block_index.tutorial_id,
+    props.block.block_index.block_id
+  );
+  if (response.status === 'success') {
+    updateBlock(response.confirmed_block);
+    updateBlockId(response.next_block_id);
+  } else {
+    alert(response.info || 'Failed to submit user answer');
+  }
+};
+
+const updateBlock = (block) => {
+  //alert('updateBlock: ' + JSON.stringify(block));
+  emit('update-block', block);
+};
+
+const updateBlockId = (newBlockId) => {
+  //alert('updateBlockId: ' + newBlockId);
+  emit('update-block-id', newBlockId);
+};
+
 </script>
+
 
 <style>
 @import "prismjs/themes/prism-tomorrow.min.css"; 
+
 </style>
 
 <style scoped>
