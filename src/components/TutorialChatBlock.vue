@@ -255,6 +255,8 @@ const submitUserAnswer = async (type, answer) => {
   }
 };
 
+const emit = defineEmits(['update-block','update-block-id']);
+
 const updateBlock = (block) => {
   //alert('updateBlock: ' + JSON.stringify(block));
   emit('update-block', block);
@@ -386,6 +388,7 @@ const updateBlockId = (newBlockId) => {
   margin-right: 10px; /* 与功能选项之间的间距 */
   margin-bottom: 0; /* 去除底部的间距 */
   vertical-align: middle; /* 垂直对齐 */
+  max-width: 85%;
 }
 
 .function-tag {
