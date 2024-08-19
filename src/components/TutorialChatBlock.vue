@@ -59,10 +59,10 @@
         <div v-if="block.data.query_quote.has_quote" class="quote-content">
           <p>{{ block.data.query_quote.quote_content.content }}</p>
         </div>
-        <p>{{ block.data.query_input.input_content }}</p>
         <div v-if="block.data.query_input.preset_function!='null'" class="function-tag">
           {{ block.data.query_input.preset_function }}
         </div>
+        <p>{{ block.data.query_input.input_content }}</p>
       </div>
     </div>
   </div>
@@ -361,21 +361,26 @@ export default {
 }
 
 .quote-content {
-  background: #f1f1f1;
-  border-left: 3px solid #007bff;
-  padding: 10px;
-  margin-bottom: 10px;
+  background: #e0e0e0; /* 灰色背景 */
+  border-left: 3px solid #a0a0a0; /* 灰色边框 */
+  padding: 5px 10px;
   border-radius: 5px;
+  display: inline-block;
+  margin-right: 10px; /* 与功能选项之间的间距 */
+  margin-bottom: 0; /* 去除底部的间距 */
+  vertical-align: middle; /* 垂直对齐 */
 }
 
 .function-tag {
-  background: #007bff;
-  color: #fff;
+  background: #a0a0a0; /* 灰色背景 */
+  color: #fff; /* 白色字体 */
   padding: 5px 10px;
   border-radius: 5px;
   display: inline-block;
   font-size: 14px;
+  vertical-align: middle; /* 垂直对齐 */
 }
+
 
 .disabled-button {
   background-color: grey;
