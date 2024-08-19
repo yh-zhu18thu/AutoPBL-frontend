@@ -308,7 +308,8 @@
       },
       sendMessage: async function() {
         if (this.newMessage.trim()) {
-          const hasQuote = this.quote.length > 0;
+          const hasQuote = this.quote?1: 0;
+          alert('quote content'+this.quote+'has quote'+hasQuote+'quote block id'+this.quoteBlockId);
           //console.log('tutorialId', this.tutorialId, 'stepId', this.stepId, 'subStepId', this.subStepId, 'blockId', this.blockId, 'newMessage', this.newMessage, 'selectedFunction', this.selectedFunction, 'hasQuote', hasQuote, 'quote', this.quote, 'quoteBlockId', this.quoteBlockId);
           const selectedFunction = this.selectedFunction ? this.selectedFunction.label : null;
           const response = await contentService.postUserQuery(

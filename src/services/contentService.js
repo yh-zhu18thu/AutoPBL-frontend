@@ -86,7 +86,7 @@ const contentService = {
             formData.append('block_id', block_id);
             formData.append('query_input_content', user_query_input_content);
             formData.append('query_preset_function', user_query_preset_function);
-            formData.append('has_quote', has_quote);
+            formData.append('has_quote', Number(has_quote));
             formData.append('quote_content', quote_content);
             formData.append('quote_block_id', quote_block_id);
             const response = await axiosInstance.post('/api/tutorial/user_query', formData);
