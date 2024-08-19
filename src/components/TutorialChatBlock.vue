@@ -285,7 +285,7 @@ const updateBlockId = (newBlockId) => {
   border-radius: 10px;
   background-color: #f9f9f9;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  max-width: 60%; /* Adjust this to control the width */
+  max-width: 80%; /* Adjust this to control the width */
 }
 
 .chat-block.tutorial-block {
@@ -304,6 +304,13 @@ const updateBlockId = (newBlockId) => {
 .chat-block-header {
   display: flex;
   align-items: flex-start;
+}
+
+.chat-block-content {
+  display: flex;
+  flex-direction: column;
+  margin-left: 10px;
+  max-width: 100%;
 }
 
 .chat-block-header.tutorial {
