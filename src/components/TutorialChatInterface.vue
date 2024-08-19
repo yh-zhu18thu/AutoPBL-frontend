@@ -310,9 +310,10 @@
         if (this.newMessage.trim()) {
           const hasQuote = this.quote.length > 0;
           //console.log('tutorialId', this.tutorialId, 'stepId', this.stepId, 'subStepId', this.subStepId, 'blockId', this.blockId, 'newMessage', this.newMessage, 'selectedFunction', this.selectedFunction, 'hasQuote', hasQuote, 'quote', this.quote, 'quoteBlockId', this.quoteBlockId);
+          const selectedFunction = this.selectedFunction ? this.selectedFunction.label : null;
           const response = await contentService.postUserQuery(
             this.tutorialId, this.stepId, this.subStepId, this.blockId, 
-            this.newMessage,this.selectedFunction.label, hasQuote, this.quote, this.quoteBlockId);
+            this.newMessage, selectedFunction, hasQuote, this.quote, this.quoteBlockId);
           this.newMessage = '';
           this.quote = '';
           this.selectedFunction = null;
