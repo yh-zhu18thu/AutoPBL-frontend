@@ -64,7 +64,21 @@ const chatService = {
         }
     },
 
-    getMessage: async (chat_message_id) => {
+    getChat: async (chat_id) => {
+        try {
+            const response = await axiosInstance.get(`/api/chat/get_chats`, {
+                params: {
+                    chat_id: chat_id
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error while getting chat', error);
+            return null;
+        }
+    },
+
+    getNextMessage: async (chat_message_id) => {
         try {
             const response = await axiosInstance.get(`/api/chat/get_message`, {
                 params: {

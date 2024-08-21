@@ -1,5 +1,6 @@
 <template>
   <div class="chat-panel">
+    <LoadingSpinner :show="isLoading" />
     <div class="title-part">
       <button class="left-button" @click="createNewChat">New Chat</button>
       <div class="title">{{ title }}</div>
@@ -100,8 +101,17 @@ marked.use(markedKatex(options));
 
 
 import { ref, nextTick, watch } from 'vue';
-import { defineProps, defineEmits } from 'vue';
+import { defineProps, defineEmits, defineComponent } from 'vue';
 import chatService from "@/services/chatService";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
+
+defineComponent({
+  components: {
+    LoadingSpinner
+  }
+});
+
+const isLoading = ref(false);
 
 const emit = defineEmits(['update-quote']);
 
@@ -134,6 +144,7 @@ const props = defineProps({
 
 const title = ref("问问AI");
 const status = ref('normal'); // 'init' or 'normal'
+const chatId = ref(null);
 const selectedPreset = ref('chat');
 const chatMessages = ref([
         {
@@ -258,9 +269,12 @@ const chatMessages = ref([
         },
     ]);
 const userInput = ref('');
+const getMessageIntervalId = ref(null); 
 
 const createNewChat = () => {
-  // Logic for creating a new chat
+  chatId.value = null;
+  status.value = 'init';
+  chatMessages.value = [];
 };
 
 const checkHistory = () => {
@@ -275,13 +289,71 @@ const hasQuote = () => {
   return quoteContent !== '';
 };
 
-const sendMessage = () => {
+const sendMessage = async() => {
   if (userInput.value.trim()) {
     chatMessages.value.push({ type: 'user', content: userInput.value });
     userInput.value = '';
     scrollToBottom();
+    isLoading.value = true;
+    if (status.value === 'init') {
+      status.value = 'normal';
+      const chatStepId = maxStepId;
+      const chatSubStepId = maxSubStepId;
+      const chatBlockId = maxBlockId;
+      if (quoteContent !== '') {
+        chatStepId = quoteBlock.block_index.step_id;
+        chatSubStepId = quoteBlock.block_index.sub_step_id;
+        chatBlockId = quoteBlock.block_index.block_id;
+      }
+      chatService.initiateChat(tutorialId,chatStepId,chatSubStepId, chatBlockId,userInput.value,selectedPreset.value, hasQuote(), quoteContent, chatBlockId).then((response) => {
+        chatId.value = response.chat_id;
+        const nextMessageId = response.next_chat_message_id;
+        getNextMessage(nextMessageId);
+      });
+    }else{
+      chatService.sendMessage(chatId.value, userInput.value).then((response) => {
+        const nextMessageId = response.next_chat_message_id;
+        scrollToBottom();
+        getNextMessage(nextMessageId);
+      });
+
+    }
   }
 };
+
+const getNextMessage = (nextMessageId) => {
+  getMessageIntervalId = setInterval(() => {
+    chatService.getNextMessage(chatId.value, nextMessageId).then((response) => {
+      if (response.status==='success'){
+          if (response.chat_message.status === 2) {
+            chatMessages.value.push({ type: 'assistant', content: response.message });
+            scrollToBottom();
+            clearInterval(getMessageIntervalId);
+            if (title.value === '问问AI') {
+              chatService.getChat(chatId.value).then((response) => {
+                if (response.status === 'success') {
+                  title.value = response.chat.title
+                }else{
+                  if (response.status === 'fail') {
+                    alert(response.message);
+                  }else{
+                    alert('Something went wrong');
+                  }
+                }
+              });
+            }
+        }else if (response.chat_message.status === 1) {
+            //failed
+            alert(response.message);
+        }
+      }else if (response.status === 'fail') {
+        alert(response.message);
+      }else{
+        alert('Something went wrong');
+      }     
+    });
+  }, 1000);
+}
 
 const scrollToBottom = () => {
   nextTick(() => {
