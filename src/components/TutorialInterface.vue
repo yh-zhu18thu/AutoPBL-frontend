@@ -1,74 +1,30 @@
 <template>
-    <div class="chat-interface">
-       <!-- Radio Button Group -->
-        <div class="content-filter">
-          <label>
-            <!--set this one to default-->
-            <input type="radio" value="all" v-model="contentFilter" />
-            全部显示
-          </label>
-          <label>
-            <input type="radio" value="tutorial" v-model="contentFilter" />
-            仅教程
-          </label>
-          <label>
-            <input type="radio" value="query" v-model="contentFilter" />
-            仅问答
-          </label>
-        </div>
-
+    <div class="tutorial-interface">
       <LoadingSpinner :show="isLoading" />
-      <div class="chat-container" @mouseup="handleSelection" ref="chatContainer">
+      <div class="tutorial-container" @mouseup="handleSelection" ref="tutorialContainer">
         <SelectionMenu :showMenu="showMenu" :menuStyle="menuStyle" @menu-selection="handleMenuSelection" @close="showMenu = false"/>
-        <TutorialChatBlock 
-          v-for="(blk, index) in filteredChatBlocks" 
+        <TutorialBlock 
+          v-for="(blk, index) in filteredBlocks" 
           :key="index" 
           :block="blk" 
           :is-newest-block="isNewestBlock"
           @update-block-id="towardsNextBlock" 
           @update-block="updateBlock"
-          ref="chatBlocks"
+          ref="tutorialBlocks"
         />
-      </div>
-      <div class="function-entry-container">
-        <div class="function-buttons">
-          <button v-for="(button, index) in functionButtons" :key="index" @click="selectFunction(button)">
-            {{ button.label }}
-          </button>
-          <button class="add-button" @click="addFunction">+</button>
-        </div>
-        <div class="input-container">
-          <div v-if="quote" class="quote-section">
-            {{ quote }}
-            <span @click="removeQuote">x</span>
-          </div>
-          <div class="input-row">
-            <div v-if="selectedFunction" class="function-tag">
-              {{ selectedFunction.label }}
-              <span @click="removeFunction">x</span>
-            </div>
-            <textarea v-model="newMessage" placeholder="输入……" @keydown.enter="sendMessage"></textarea>
-            <button 
-              @click="sendMessage" 
-              :disabled="messageOntheWay"
-              class="send-button">
-              <i class="fas fa-paper-plane">发送</i>
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   </template>
   
   <script>
-  import {default as TutorialChatBlock} from './TutorialChatBlock.vue';
+  import {default as TutorialBlock} from './TutorialBlock.vue';
   import {debounce} from 'lodash';
   import contentService from '@/services/contentService';
   import LoadingSpinner from './LoadingSpinner.vue';
   import SelectionMenu from './SelectionMenu.vue';
   
   export default {
-    name: 'TutorialChatInterface',
+    name: 'TutorialInterface',
     props:{
         tutorialId: {
             type: Number,
@@ -92,25 +48,18 @@
         }
     },
     components: {
-      TutorialChatBlock,
+      TutorialBlock,
       LoadingSpinner,
       SelectionMenu,
     },
     computed: {
-      filteredChatBlocks() {
-        if (this.contentFilter === 'all') {
-          return this.chatBlocks;
-        } else if (this.contentFilter === 'tutorial') {
-          return this.chatBlocks.filter(block => block.block_type === 'tutorial');
-        } else if (this.contentFilter === 'query') {
-          return this.chatBlocks.filter(block => block.block_type != 'tutorial');
-        }
+      filteredBlocks() {
+        return this.tutorialBlocks.filter(block => block.block_type === 'tutorial');
       },
-      
     },
     data() {
       return {
-        chatBlocks: [],
+        tutorialBlocks: [],
         newMessage: '',
         quote: '',
         selectedFunction: null,
@@ -137,7 +86,7 @@
     },
     created() {
       if (this.subStepId) {
-        this.initChatBlocks();
+        this.initBlocks();
       }
     },
     mounted() {
@@ -145,12 +94,12 @@
     },
     watch: {
       subStepId: function(newVal, oldVal) {
-        this.debounceInitChatblocks();
+        this.debounceInitblocks();
       },
       stepId : function(newVal, oldVal) {
-        this.debounceInitChatblocks();
+        this.debounceInitblocks();
       },
-      filteredChatBlocks: function(newVal, oldVal) {
+      filteredBlocks: function(newVal, oldVal) {
         this.$nextTick(() => {
           this.scrollToBottom();
         });
@@ -167,7 +116,7 @@
           const offsetY = -20;
           const blockIndex = this.findBlockIdForSelection(selection.getRangeAt(0));
           //alert('blockIndex: ' + blockIndex);
-          const blockId = this.chatBlocks[blockIndex].block_index.block_id;
+          const blockId = this.tutorialBlocks[blockIndex].block_index.block_id;
           if (blockId) {
             this.selectedBlockId = blockId;
             this.menuStyle.top = `${rect.bottom + window.scrollY+offsetY}px`;
@@ -181,7 +130,7 @@
       findBlockIdForSelection(range) {
         const rangeRect = range.getBoundingClientRect();
         //alert('rangeRect: ' + rangeRect.top + ', ' + rangeRect.bottom + ', ' + rangeRect.left + ', ' + rangeRect.right);
-        const blocks = this.$refs.chatBlocks;
+        const blocks = this.$refs.tutorialBlocks;
         console.log('*blocks', blocks.map(block => block.$el));
         for (let i = 0; i < blocks.length; i++) {
           const blockElement = blocks[i].$el;
@@ -224,10 +173,10 @@
       addToCollection() {
         // Logic to add selected text to collection
       },
-      debounceInitChatblocks: debounce(function() {
-        this.initChatBlocks();
+      debounceInitblocks: debounce(function() {
+        this.initBlocks();
       }, 300),
-      initChatBlocks: async function() {
+      initBlocks: async function() {
         //call get substep chat blocks
         //alert('initChatBlocks, subStepId: ' + this.subStepId + ', stepId: ' + this.stepId + ', blockId: ' + this.blockId);
         if (this.subStepId!=null){
@@ -252,7 +201,7 @@
             //get all the chat blocks of the substep
             const response = await contentService.getSubStepBlocks(this.tutorialId, this.stepId, this.subStepId);
             if (response.status === "success") {
-              this.chatBlocks = response.blocks;
+              this.tutorialBlocks = response.blocks;
               const blockId = response.blocks[response.blocks.length - 1].block_index.block_id;
               this.updateBlockId(blockId);
             }else {
@@ -282,9 +231,9 @@
               this.$emit('update-step-id', newBlock.block_index.step_id);
               this.$emit('update-sub-step-id', newBlock.block_index.sub_step_id);
               //clear the chat blocks
-              this.chatBlocks = [];
+              this.tutorialBlocks = [];
             }
-            this.chatBlocks.push(newBlock);
+            this.tutorialBlocks.push(newBlock);
             this.updateBlockId(newBlock.block_index.block_id);
             clearInterval(this.getBlockIntervalId);
           }else{
@@ -325,12 +274,12 @@
           this.quote = '';
           this.selectedFunction = null;
           this.$nextTick(() => {
-            const chatContainer = this.$el.querySelector('.chat-container');
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            const tutorialContainer = this.$el.querySelector('.tutorial-container');
+            tutorialContainer.scrollTop = tutorialContainer.scrollHeight;
           });
           if (response.status === "success") {
             const confirmedBlock = response.confirmed_block;
-            this.chatBlocks.push(confirmedBlock);
+            this.tutorialBlocks.push(confirmedBlock);
             const nextBlockId = response.next_block_id;
             this.updateBlockId(nextBlockId);
             this.messageOntheWay = false;
@@ -369,9 +318,9 @@
       },
       updateBlock(block){
         //iterate through the chatblocks and find the block with the same block_id, then update it
-        for (let i = 0; i < this.chatBlocks.length; i++) {
-          if (this.chatBlocks[i].block_index.block_id == block.block_index.block_id) {
-            this.chatBlocks[i] = block;
+        for (let i = 0; i < this.tutorialBlocks.length; i++) {
+          if (this.tutorialBlocks[i].block_index.block_id == block.block_index.block_id) {
+            this.tutorialBlocks[i] = block;
             break;
           }
         }
@@ -381,8 +330,8 @@
       },
       scrollToBottom() {
         this.$nextTick(() => {
-          const chatContainer = this.$refs.chatContainer;
-          chatContainer.scrollTop = chatContainer.scrollHeight;
+          const tutorialContainer = this.$refs.tutorialContainer;
+          tutorialContainer.scrollTop = tutorialContainer.scrollHeight;
         });
       },
     },
@@ -390,7 +339,7 @@
   </script>
   
 <style scoped>
-.chat-interface {
+.tutorial-interface {
   display: flex;
   flex-direction: column;
   height: 100%; /* Full height within the content container */
@@ -400,150 +349,17 @@
   width: 100%; /* Ensure the chat interface takes full width of the content container */
 }
 
-.content-filter {
-  position: fixed;
-  top: 0;
-  left: 250px; /* Align with the start of the content-container */
-  width: calc(100% - 250px); /* Take up the remaining width within the content container */
-  max-width: 80%; /* Limit width to 80% of the viewport width for centering */
-  display: flex;
-  justify-content: space-around;
-  margin-top: 20px;
-  padding: 10px;
-  border-radius: 10px;
-  z-index: 1000; /* Ensure it stays on top */
-  margin-left: auto;
-  margin-right: auto;
-  right: 0;
-}
-
-.chat-container {
+.tutorial-container {
   flex-grow: 1;
   overflow-y:scroll;
   display: flex;
   flex-direction: column;
   padding: 20px;
-  top: 10px; /* Space for the fixed content filter */
   width: 100%; /* Centered container takes up 80% width */
   max-width: calc(100vw - 350px); /* Ensure it doesn't exceed the remaining content width */
-  bottom: 200px;
   margin-left: auto;
   margin-right: auto;
-  margin-top:20px;
-  margin-bottom:200px;
 }
-
-.function-entry-container {
-  position: fixed;
-  bottom: 0;
-  left: 250px; /* Align with the start of the content-container */
-  width: calc(100% - 250px); /* Take up the remaining width within the content container */
-  max-width: 80%; /* Limit width to 80% of the viewport width for centering */
-  padding: 10px;
-  background: #fff;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  border-radius: 20px;
-  box-sizing: border-box; /* Ensure padding is included in width */
-  z-index: 1000; /* Ensure it stays on top */
-  margin-left: auto;
-  margin-right: auto;
-  max-height: 200px;
-  right: 0;
-}
-
-.function-buttons {
-  display: flex;
-  margin-bottom: 10px;
-}
-
-.function-buttons button {
-  background: #f1f1f1;
-  border: none;
-  border-radius: 20px;
-  margin-right: 10px;
-  padding: 5px 10px;
-  cursor: pointer;
-}
-
-.add-button {
-  background: none;
-  border: 1px solid #ccc;
-  border-radius: 20px;
-  padding: 5px 10px;
-  cursor: pointer;
-}
-.input-container {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid #ccc;
-  border-radius: 20px;
-  padding: 10px 15px;
-  width: 100%;
-  box-sizing: border-box;
-  background-color: #f9f9f9;
-}
-
-.input-row {
-  display: flex;
-  align-items: center;
-  margin-top: 10px; /* Space between quote and input row */
-}
-
-.function-tag {
-  background: #f1f1f1;
-  border-radius: 10px;
-  margin-right: 10px;
-  padding: 5px 10px;
-  display: flex;
-  align-items: center;
-}
-
-.function-tag span {
-  margin-left: 5px;
-  cursor: pointer;
-  color: #007bff;
-}
-
-.quote-section {
-  background: #f1f1f1;
-  border-radius: 10px;
-  padding: 5px 10px;
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px; /* Space between quote and input row */
-}
-
-.quote-section span {
-  margin-left: 5px;
-  cursor: pointer;
-  color: #007bff;
-}
-
-textarea {
-  flex-grow: 1;
-  border: none;
-  outline: none;
-  resize: none;
-  padding: 10px;
-  font-size: 16px;
-  min-height: 50px;
-  border-radius: 10px;
-  margin-right: 10px;
-}
-
-.send-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  padding: 10px;
-  cursor: pointer;
-}
-
-.send-button i {
-  font-size: 18px;
-}
-
 
 </style>
   

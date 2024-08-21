@@ -1,16 +1,21 @@
 <template>
-    <div id="tutorial-page">
-      <TutorialMenu 
-        :tutorialId="currentTutorialId" 
-        :stepId="currentStepId" 
-        :subStepId="currentSubStepId" 
-        :maxStepId="maxStepId"
-        :maxSubStepId="maxSubStepId"
-        @update-step-id="updateCurrentStepId" 
-        @update-sub-step-id="updateCurrentSubStepId" 
-        class="menu-container"/>
-      <div class="content-container">
-        <TutorialChatInterface 
+  <div id="tutorial-page">
+    <TutorialMenu 
+      :tutorialId="currentTutorialId" 
+      :stepId="currentStepId" 
+      :subStepId="currentSubStepId" 
+      :maxStepId="maxStepId"
+      :maxSubStepId="maxSubStepId"
+      @update-step-id="updateCurrentStepId" 
+      @update-sub-step-id="updateCurrentSubStepId" 
+      class="menu-container"/>
+    <div class="main-content">
+      <div 
+        ref="contentContainer" 
+        class="content-container" 
+        :style="{ width: tutorialWidth + '%' }"
+      >
+        <TutorialInterface 
           :tutorialId="currentTutorialId" 
           :stepId="currentStepId" 
           :subStepId="currentSubStepId" 
@@ -19,15 +24,36 @@
           @update-step-id="updateCurrentStepId" 
           @update-sub-step-id="updateCurrentSubStepId" 
           @update-block-id="updateCurrentBlockId" 
-          class="chat-container"/>
+        />
+      </div>
+      <div 
+        class="drag-bar" 
+        @mousedown="startDragging"
+      >
+        <div class="chat-toggle" @click="toggleChat">
+          {{ isChatExpanded ? '>>' : '<<' }}
+        </div>
+      </div>
+      <div 
+        ref="chatContainer"
+        class="chat-container" 
+        :style="{ width: chatWidth + '%' }"
+      >
+        <ChatPanel 
+          v-if="isChatExpanded"
+          @toggle-chat="toggleChat"
+        />
       </div>
     </div>
-  </template>
+  </div>
+</template>
+
   
   <script>
   import {default as TutorialMenu} from './TutorialMenu.vue';
-  import {default as TutorialChatInterface} from './TutorialChatInterface.vue';
+  import {default as TutorialInterface} from './TutorialInterface.vue';
   import contentService from '@/services/contentService';
+  import {default as ChatPanel} from './ChatPanel.vue';
   
   export default {
     name: 'TutorialPage',
@@ -39,12 +65,19 @@
         currentBlockId: null,
         maxBlockId: -1,
         maxStepId: -1,
-        maxSubStepId: -1
+        maxSubStepId: -1,
+        isChatExpanded: false,
+        tutorialWidth: 100, // 初始宽度比例
+        chatWidth: 0,     // 初始宽度比例
+        isDragging: false, // 是否正在拖拽
+        startX: 0,         // 拖拽起始位置
+        containerWidth: 0, // 整个页面宽度
       };
     },
     components: {
       TutorialMenu,
-      TutorialChatInterface
+      TutorialInterface,
+      ChatPanel
     },
     // when init, fetch the tutorial status
     created() {
@@ -102,36 +135,131 @@
           this.maxBlockId = blockId;
         }
         //alert('updateCurrentBlockId: ' + blockId+ ', maxBlockId: ' + this.maxBlockId);
-      }
+      },
+      toggleChat() {
+        if (this.isChatExpanded) {
+          this.chatWidth = 0;
+          this.tutorialWidth = 100;
+        } else {
+          this.chatWidth = 30;
+          this.tutorialWidth = 70;
+        }
+        this.isChatExpanded = !this.isChatExpanded;
+      },
+      startDragging(event) {
+        this.isDragging = true;
+        this.startX = event.clientX;
+        document.addEventListener('mousemove', this.onDragging);
+        document.addEventListener('mouseup', this.stopDragging);
+
+        // 禁用 transition
+        this.$refs.contentContainer.style.transition = 'none';
+        this.$refs.chatContainer.style.transition = 'none';
+        this.containerWidth = this.$refs.contentContainer.parentNode.offsetWidth;
+      },
+      onDragging(event) {
+        if (!this.isDragging) return;
+        requestAnimationFrame(() => {
+          const deltaX = event.clientX - this.startX;
+          let newTutorialWidth = ((this.$refs.contentContainer.offsetWidth + deltaX) / this.containerWidth) * 100;
+          let newChatWidth = 100 - newTutorialWidth;
+
+          if (newTutorialWidth < 30) {
+            newTutorialWidth = 30;
+            newChatWidth = 70;
+          } else if (newChatWidth < 15) {
+            newChatWidth = 15;
+            newTutorialWidth = 85;
+          }
+
+          this.tutorialWidth = newTutorialWidth;
+          this.chatWidth = newChatWidth;
+          this.startX = event.clientX;
+        });
+      },
+      stopDragging() {
+        this.isDragging = false;
+        document.removeEventListener('mousemove', this.onDrag);
+        document.removeEventListener('mouseup', this.stopDragging);
+        // 恢复 transition
+        this.$refs.contentContainer.style.transition = '';
+        this.$refs.chatContainer.style.transition = '';
+      },
     },
   };
   </script>
   
-  <style scoped>
+<style scoped>
   #tutorial-page {
     display: flex;
-    height: 100vh; /* Full browser height */
-    width: 100vw; /* Full browser width */
+    height: 100vh;
+    width: 100vw;
   }
 
   .menu-container {
     position: fixed;
     top: 0;
     left: 0;
-    width: 250px; /* Fixed width for the menu */
-    height: 100vh; /* Full height for the menu */
+    width: 250px;
+    height: 100vh;
     background-color: #f8f9fa;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
 
-  .content-container {
+  .main-content {
+    display: flex;
+    flex-direction: row;
     position: fixed;
     top: 0;
-    left: 250px; /* Start after the menu */
-    width: calc(100vw - 250px); /* Take up the remaining width */
-    height: 100vh; /* Full height for the content */
-    background-color: #ffffff; /* Optional: background color for content */
+    left: 250px;
+    height: 100vh;
+    width: calc(100vw - 250px);
+    overflow: hidden;
   }
+
+  .content-container {
+    flex-grow: 1;
+    height: 100vh;
+    background-color: #ffffff;
+  }
+
+  .chat-container {
+    height: 100vh;
+    background-color: #f0f0f0;
+  }
+
+  .chat-container.expanded {
+    display: block;
+  }
+
+
+  .drag-bar {
+    width: 5px; /* 分割线宽度 */
+    background-color: #cccccc;
+    cursor: ew-resize; /* 鼠标在分割线上时显示拖拽样式 */
+    position: relative;
+    z-index: 10; /* 确保分割线在其他元素之上 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .chat-toggle {
+    width: 20px;
+    height: 40px;
+    background-color: #bbbbbb;
+    color: white;
+    cursor: pointer;
+    text-align: center;
+    line-height: 40px;
+    font-size: 14px;
+    border-radius: 4px;
+    z-index: 20; /* 保证toggle按钮在最上层 */
+    user-select: none; /* 防止用户选择到文本 */
+  }
+
+
+
 
   </style>
   

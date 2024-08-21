@@ -1,8 +1,8 @@
 <template>
-  <div :class="['chat-block', blockClass]">
-    <div :class="['chat-block-header', isTutorial ? 'tutorial' : 'user']">
+  <div :class="['tutorial-block', blockClass]">
+    <div :class="['tutorial-block-header','tutorial']">
       <img :src="portraitUrl" alt="Portrait" class="portrait" />
-      <div v-if="isTutorial" class="chat-block-content">
+      <div class="tutorial-block-content">
         <div v-html="renderedMarkdown" class="tutorial-content line-numbers language-markup" ></div>
         <div class="user-question">
           <div class="question-content" v-html="renderedQuestionMarkdown"></div>
@@ -55,15 +55,6 @@
           </div>
         </div>
       </div>
-      <div v-else class="chat-block-content">
-        <div v-if="block.data.query_quote.has_quote" class="quote-content">
-          <p>{{ block.data.query_quote.quote_content.content }}</p>
-        </div>
-        <div v-if="block.data.query_input.preset_function!='null'" class="function-tag">
-          {{ block.data.query_input.preset_function }}
-        </div>
-        <p>{{ block.data.query_input.input_content }}</p>
-      </div>
     </div>
   </div>
 </template>
@@ -115,7 +106,6 @@ marked.use(markedKatex(options));
 
 import { ref, watch, computed, onMounted } from 'vue';
 import robotLogo from '@/assets/robot.png';
-import studentLogo from '@/assets/student.png';
 import contentService from '@/services/contentService';
 
 // Props
@@ -138,9 +128,9 @@ const selectedTextInputType = ref('');
 // Computed properties
 const isTutorial = computed(() => props.block.block_type != 'user_query');
 
-const blockClass = computed(() => (isTutorial.value ? 'tutorial-block' : 'user-block'));
+const blockClass = computed(() => 'tutorial-block');
 
-const portraitUrl = computed(() => (isTutorial.value ? robotLogo : studentLogo));
+const portraitUrl = computed(() => robotLogo);
 
 const blockIdentifier = computed(() => {
   const { step_id, sub_step_id, block_id } = props.block.block_index;
@@ -200,7 +190,6 @@ watch(
         selectedChoice.value = Number(userInputContent);
       }
     }
-    prism.highlightAll();
   },
   { deep: true }
 );
@@ -210,14 +199,12 @@ onMounted(() => {
   if (isTutorial.value) {
     const userInputContent = props.block.data.user_input_content.user_input;
     const userInputType = props.block.data.user_input_content.type;
-
     if (userInputType === 'text_input') {
       userInput.value = userInputContent !== 'PLACEHOLDER' ? userInputContent : '';
     } else if (userInputType === 'multi_choice') {
       selectedChoice.value = Number(userInputContent);
     }
   }
-  prism.highlightAll();
 });
 
 // Methods
@@ -277,7 +264,7 @@ const updateBlockId = (newBlockId) => {
 
 <style scoped>
 
-.chat-block {
+.tutorial-block {
   display: flex;
   flex-direction: column;
   margin: 10px;
@@ -285,39 +272,39 @@ const updateBlockId = (newBlockId) => {
   border-radius: 10px;
   background-color: #f9f9f9;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  max-width: 80%; /* Adjust this to control the width */
+  max-width: 95%; /* Adjust this to control the width */
 }
 
-.chat-block.tutorial-block {
+.tutorial-block.tutorial-block {
   align-self: flex-start; /* Align tutorial blocks to the left */
 }
 
-.chat-block.user-block {
+.tutorial-block.user-block {
   align-self: flex-end; /* Align user blocks to the right */
 }
 
-.chat-block.p {
+.tutorial-block.p {
   margin: 0;
   word-wrap: break-word;
 }
 
-.chat-block-header {
+.tutorial-block-header {
   display: flex;
   align-items: flex-start;
 }
 
-.chat-block-content {
+.tutorial-block-content {
   display: flex;
   flex-direction: column;
   margin-left: 10px;
   max-width: 100%;
 }
 
-.chat-block-header.tutorial {
+.tutorial-block-header.tutorial {
   flex-direction: row;
 }
 
-.chat-block-header.user {
+.tutorial-block-header.user {
   flex-direction: row-reverse;
 }
 
