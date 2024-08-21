@@ -4,15 +4,23 @@
     <div class="title-part">
       <button class="left-button" @click="createNewChat">New Chat</button>
       <div class="title">{{ truncateTitle }}</div>
-      <button class="right-button" @click="checkHistory">Check History</button>
+      <div class="history-dropdown">
+        <button class="right-button" @click="checkHistory">Check History</button>
+        <div v-if="historyDropdown" class="dropdown-list">
+          <ul >
+            <li v-for="item in historyChats" :key="item.chat_id" @click="handleChatHistoryClick(item.chat_id)">
+              {{ item.title }}
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
-
     <div v-if="props.quoteContent && status === 'init'" class="quote-part card">
       <div class="quote-content">{{ props.quoteContent }}</div>
       <button class="close-button" @click="deleteQuote">✕</button>
     </div>
     <div v-else-if="quote && status === 'normal'" class="quote-part card">
-      <div class="quote-content">{{ props.quoteContent }}</div>
+      <div class="quote-content">{{ truncateQuote }}</div>
     </div>
 
     <div class="preset-function-part card">
@@ -149,6 +157,8 @@ const chatMessages = ref([]);
 const userInput = ref('');
 const getMessageIntervalId = ref(null); 
 const getTitleIntervalId = ref(null);
+const historyChats = ref([]);
+const historyDropdown = ref(false);
 
 const createNewChat = () => {
   chatId.value = null;
@@ -156,8 +166,42 @@ const createNewChat = () => {
   chatMessages.value = [];
 };
 
-const checkHistory = () => {
-  // Logic for checking chat history
+const checkHistory = (chatId) => {
+  chatService.getChatHistory(props.tutorialId).then((response) => {
+    if (response.status === 'success') {
+      //reverse it to show the latest chat first
+      response.chats.reverse();
+      historyChats.value = response.chats;
+    }else if (response.status === 'fail') {
+      alert(response.message);
+    }else{
+      alert('Something went wrong');
+    }
+  });
+  historyDropdown.value = !historyDropdown.value;
+};
+
+const handleChatHistoryClick = (chatId) => {
+  chatService.getChatMessages(chatId).then((response) => {
+    if (response.status === 'success') {
+      
+      // get the first chatmessage and get the selected function which is before the first :
+      const firstMessage = response.chat_messages[0].content;
+      const firstMessageIndex = firstMessage.indexOf(':');
+      const selectedFunction = firstMessage.substring(0, firstMessageIndex);
+      selectedPreset.value = selectedFunction;
+      chatMessages.value = response.chat_messages;
+      chatMessages.value[0].content = chatMessages.value[0].content.substring(firstMessageIndex+1);
+      status.value = 'normal';
+      chatId.value = chatId;
+      scrollToBottom();
+    }else if (response.status === 'fail') {
+      alert(response.message);
+    }else{
+      alert('Something went wrong');
+    }
+  });
+  historyDropdown.value = false;
 };
 
 const deleteQuote = () => {
@@ -436,6 +480,42 @@ input[type="text"] {
 
 button {
   margin-left: 10px;
+}
+
+.history-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+
+.dropdown-list {
+  position: absolute;
+  left: 0; /* 使下拉列表出现在按钮的左下方 */
+  top: 100%;
+  margin-top: 8px;
+  width: 200px;
+  max-height: 150px;
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.dropdown-list ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dropdown-list li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.dropdown-list li:hover {
+  background-color: #f0f0f0;
 }
 
 
