@@ -18,7 +18,11 @@
       <template v-if="status === 'init'">
         <div class="preset-selector">
           <select v-model="selectedPreset" id="preset-select">
-            <option value="chat">Chat</option>
+            <option value="chat">自由提问</option>
+            <option value="explain">解释</option>
+            <option value="debug">Debug</option>
+            <option value="visualize">可视化</option>
+            <option value="practice">出练习题</option>
             <!-- Add more options as needed -->
           </select>
         </div>
@@ -35,7 +39,9 @@
       <template v-else>
         <div class="chat-blocks" ref="chatBlocks">
           <div v-for="(message, index) in chatMessages" :key="index" class="message">
-            <div v-if="message.role === 'user'" class="chat-message user-message card">{{ message.content }}</div>
+            <div v-if="message.role === 'user'" class="chat-message user-message card line-numbers language-markup">
+              {{ renderMarkdown(message.content) }}
+            </div>
             <div v-else class="chat-message response-message card">{{ message.content }}</div>
           </div>
         </div>
@@ -51,10 +57,82 @@
 
 
 <script setup>
+import { marked } from "marked";
+import markedKatex from "marked-katex-extension";
+import prism from "prismjs";
+
+// Add numbering to the Code blocks
+import "prismjs/plugins/line-numbers/prism-line-numbers.js";
+import "prismjs/plugins/line-numbers/prism-line-numbers.css";
+
+import "prismjs/plugins/toolbar/prism-toolbar.js"; // required for the following plugins
+import "prismjs/plugins/toolbar/prism-toolbar.css"; // required for the following plugins
+import "prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard.js"; // show copy button
+import "prismjs/plugins/show-language/prism-show-language.js"; // display the language of the code block
+
+// Load the languages you need
+import "prismjs/components/prism-python";
+import "prismjs/components/prism-bash";
+
+ // This is needed if you have a conflict with other loaded CSS imports (i.e. Bulma).
+import "prismjs/plugins/custom-class/prism-custom-class";
+prism.plugins.customClass.map({ number: "prism-number", tag: "prism-tag" });
+
+const options = {
+  throwOnError: true,
+  output: 'mathml',
+  delimiters: [
+    {left: "$$", right: "$$", display: true},
+    {left: "\\(", right: "\\)", display: true},
+    {left: "\\begin{equation}", right: "\\end{equation}", display: true},
+    {left: "\\begin{align}", right: "\\end{align}", display: true},
+    {left: "\\begin{alignat}", right: "\\end{alignat}", display: true},
+    {left: "\\begin{gather}", right: "\\end{gather}", display: true},
+    {left: "\\begin{CD}", right: "\\end{CD}", display: true},
+    {left: "\\[", right: "\\]", display: true},
+    {left: "$", right: "$", display: true},
+    {left: "\\(", right: "\\)", display: true},
+    {left: "\\[", right: "\\]", display: true}
+  ]
+};
+
+marked.use(markedKatex(options));
+
+
 import { ref, nextTick, watch } from 'vue';
+import { defineProps, defineEmits } from 'vue';
+import chatService from "@/services/chatService";
+
+const emit = defineEmits(['update-quote']);
+
+const props = defineProps({
+  tutorialId: {
+    type: Number,
+    required: true
+  },
+  maxStepId: {
+    type: Number,
+    required: true
+  },
+  maxSubStepId: {
+    type: Number,
+    required: true
+  },
+  maxBlockId: {
+    type: Number,
+    required: true
+  },
+  quoteBlock: {
+    type: Object,
+    required: false
+  },
+  quoteContent: {
+    type: String,
+    required: false
+  }
+})
 
 const title = ref("问问AI");
-const quote = ref('test'); // or set some initial value
 const status = ref('normal'); // 'init' or 'normal'
 const selectedPreset = ref('chat');
 const chatMessages = ref([
@@ -190,7 +268,11 @@ const checkHistory = () => {
 };
 
 const deleteQuote = () => {
-  quote.value = null;
+  emit('update-quote', '', null);
+};
+
+const hasQuote = () => {
+  return quoteContent !== '';
 };
 
 const sendMessage = () => {
@@ -213,6 +295,14 @@ const scrollToBottom = () => {
 watch(chatMessages, () => {
   scrollToBottom();
 });
+
+const renderMarkdown = (content) => {
+  const html = marked.parse(content);
+  setTimeout(() => {
+    prism.highlightAll();
+  }, 20);
+  return html;
+};
 </script>
 
 <style scoped>

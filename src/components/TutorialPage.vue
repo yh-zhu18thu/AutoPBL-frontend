@@ -21,9 +21,12 @@
           :subStepId="currentSubStepId" 
           :blockId="currentBlockId"  
           :maxBlockId="maxBlockId"
+          :quoteBlock="quoteBlock"
+          :quoteContent="quoteContent"
           @update-step-id="updateCurrentStepId" 
           @update-sub-step-id="updateCurrentSubStepId" 
-          @update-block-id="updateCurrentBlockId" 
+          @update-block-id="updateCurrentBlockId"
+          @update-quote="updateQuote"
         />
       </div>
       <div 
@@ -42,6 +45,13 @@
         <ChatPanel 
           v-if="isChatExpanded"
           @toggle-chat="toggleChat"
+          :tutorialId="currentTutorialId"
+          :maxStepId="maxStepId"
+          :maxSubStepId="maxSubStepId"
+          :maxBlockId="maxBlockId"
+          :quoteBlock="quoteBlock"
+          :quoteContent="quoteContent"
+          @update-quote="updateQuote"
         />
       </div>
     </div>
@@ -67,6 +77,8 @@
         maxStepId: -1,
         maxSubStepId: -1,
         isChatExpanded: false,
+        quoteBlock: null,
+        quoteContent: '',
         tutorialWidth: 100, // 初始宽度比例
         chatWidth: 0,     // 初始宽度比例
         isDragging: false, // 是否正在拖拽
@@ -135,6 +147,10 @@
           this.maxBlockId = blockId;
         }
         //alert('updateCurrentBlockId: ' + blockId+ ', maxBlockId: ' + this.maxBlockId);
+      },
+      updateQuote(quoteContent,quoteBlock) {
+        this.quoteBlock = quoteBlock;
+        this.quoteContent = quoteContent;
       },
       toggleChat() {
         if (this.isChatExpanded) {

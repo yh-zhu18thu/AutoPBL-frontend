@@ -45,7 +45,15 @@
         maxBlockId: {
             type: Number,
             required: true
-        }
+        },
+        quoteBlock: {
+            type: Object,
+            required: true
+        },
+        quoteContent: {
+            type: String,
+            required: true
+        },
     },
     components: {
       TutorialBlock,
@@ -61,14 +69,6 @@
       return {
         tutorialBlocks: [],
         newMessage: '',
-        quote: '',
-        selectedFunction: null,
-        functionButtons: [
-            { label: '解释' },
-            { label: 'Debug' },
-            { label: '可视化' },
-            { label: '练习' },
-        ],
         getBlockIntervalId: null,
         isLoading: false, //control the occurence of loading spinner
         showMenu: false,
@@ -78,7 +78,6 @@
           left: '0px',
         },
         selectedBlockId: null,
-        quoteBlockId: null,
         contentFilter: 'all',
         total_steps: 0,
         messageOntheWay: false,
@@ -156,9 +155,10 @@
             navigator.clipboard.writeText(this.selectedText);
             break;
           case 'quote':
-            this.quoteText();
-            this.quoteBlockId = this.selectedBlockId;
-            break;
+            const quoteContent = this.selectedText;
+            const quoteBlockId = this.selectedBlockId;
+            const quoteBlock = this.tutorialBlocks.find(block => block.block_index.block_id === quoteBlockId);
+            this.$emit('update-quote', quoteContent, quoteBlock);
           case 'collection':
             this.addToCollection();
             break;
@@ -166,9 +166,6 @@
             break;
         }
         this.showMenu = false;
-      },
-      quoteText() {
-        this.quote = this.selectedText;
       },
       addToCollection() {
         // Logic to add selected text to collection
