@@ -164,9 +164,9 @@
           let newTutorialWidth = ((this.$refs.contentContainer.offsetWidth + deltaX) / this.containerWidth) * 100;
           let newChatWidth = 100 - newTutorialWidth;
 
-          if (newTutorialWidth < 30) {
-            newTutorialWidth = 30;
-            newChatWidth = 70;
+          if (newTutorialWidth < 50) {
+            newTutorialWidth = 50;
+            newChatWidth = 50;
           } else if (newChatWidth < 15) {
             newChatWidth = 15;
             newTutorialWidth = 85;
