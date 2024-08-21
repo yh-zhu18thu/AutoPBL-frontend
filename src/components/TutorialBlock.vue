@@ -1,5 +1,5 @@
 <template>
-  <div :class="['tutorial-block', blockClass]">
+  <div :class="['tutorial-block', blockClass,{'pastBlocks': userAnswered}]">
     <div :class="['tutorial-block-header','tutorial']">
       <img :src="portraitUrl" alt="Portrait" class="portrait" />
       <div class="tutorial-block-content">
@@ -36,14 +36,6 @@
               :disabled="userAnswered"
               :class="{ 'disabled-input': userAnswered}"
             />
-            <button 
-              class="choice-button" 
-              @click="handleGPT"
-              :disabled="userAnswered"
-              :class="{ 'disabled-button': userAnswered, 'selected-choice': selectedTextInputType === 'gpt'}"
-            >
-              GPT帮我答
-            </button>
             <button 
               class="choice-button" 
               @click="handleUserTextInput"
@@ -279,9 +271,10 @@ const updateBlockId = (newBlockId) => {
   align-self: flex-start; /* Align tutorial blocks to the left */
 }
 
-.tutorial-block.user-block {
-  align-self: flex-end; /* Align user blocks to the right */
+.pastBlocks {
+  background-color: #eeeeee;
 }
+
 
 .tutorial-block.p {
   margin: 0;
@@ -317,12 +310,12 @@ const updateBlockId = (newBlockId) => {
 
 .tutorial-content {
   margin-bottom: 10px;
-  max-width: 90%;
+  max-width: 95%;
 }
 
 .question-content{
   margin-bottom: 10px;
-  max-width: 90%;
+  max-width: 95%;
 }
 .user-question {
   margin-top: 20px;
@@ -361,7 +354,7 @@ const updateBlockId = (newBlockId) => {
   display: flex;
   align-items: center;
   margin-top: 10px;
-  max-width: 90%;
+  max-width: 95%;
 }
 
 .text-input-section input {
@@ -371,28 +364,6 @@ const updateBlockId = (newBlockId) => {
   padding: 10px;
   margin-right: 10px;
   font-size: 16px;
-}
-
-.quote-content {
-  background: #e0e0e0; /* 灰色背景 */
-  border-left: 3px solid #a0a0a0; /* 灰色边框 */
-  padding: 5px 10px;
-  border-radius: 5px;
-  display: inline-block;
-  margin-right: 10px; /* 与功能选项之间的间距 */
-  margin-bottom: 0; /* 去除底部的间距 */
-  vertical-align: middle; /* 垂直对齐 */
-  max-width: 85%;
-}
-
-.function-tag {
-  background: #a0a0a0; /* 灰色背景 */
-  color: #fff; /* 白色字体 */
-  padding: 5px 10px;
-  border-radius: 5px;
-  display: inline-block;
-  font-size: 14px;
-  vertical-align: middle; /* 垂直对齐 */
 }
 
 
