@@ -46,13 +46,13 @@ const chatService = {
 
     initiateChat: async (tutorial_id, step_id, sub_step_id, block_id,user_input_content,selected_function,has_quote,quote_content,quote_block_id) => {
         try {
+            //alert('initiateChat '+'tutorial_id: '+tutorial_id+' step_id: '+step_id+' sub_step_id: '+sub_step_id+' block_id: '+block_id+' user_input_content: '+user_input_content+' selected_function: '+selected_function+' has_quote: '+has_quote+' quote_content: '+quote_content+' quote_block_id: '+quote_block_id);
             const formData = new FormData();
             formData.append('tutorial_id', tutorial_id);
-            formData.append('step_id', step_id);
-            formData.append('sub_step_id', sub_step_id);
+            formData.append('step_index', step_id);
+            formData.append('sub_step_index', sub_step_id);
             formData.append('block_id', block_id);
-            formData.append('user_input_content', user_input_content);
-            formData.append('selected_function', selected_function);
+            formData.append('user_input_content', selected_function+':'+user_input_content);
             formData.append('has_quote', has_quote);
             formData.append('quote_content', quote_content);
             formData.append('quote_block_id', quote_block_id);
@@ -66,7 +66,8 @@ const chatService = {
 
     getChat: async (chat_id) => {
         try {
-            const response = await axiosInstance.get(`/api/chat/get_chats`, {
+            //alert('getChat '+chat_id);
+            const response = await axiosInstance.get(`/api/chat/get_chat`, {
                 params: {
                     chat_id: chat_id
                 }
@@ -80,6 +81,7 @@ const chatService = {
 
     getNextMessage: async (chat_message_id) => {
         try {
+            //alert('getNextMessage '+chat_message_id);
             const response = await axiosInstance.get(`/api/chat/get_message`, {
                 params: {
                     chat_message_id: chat_message_id

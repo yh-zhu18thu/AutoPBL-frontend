@@ -70,7 +70,7 @@
       },
       createProject:async function() {
         const response = await projectService.generateNewProject(this.newProjectDescription);
-        console.log(response);
+        //console.log(response);
         if (response.status === "success") {
           alert('Begin to create project');
           this.getProjectList();

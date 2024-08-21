@@ -76,11 +76,11 @@
         maxBlockId: -1,
         maxStepId: -1,
         maxSubStepId: -1,
-        isChatExpanded: false,
+        isChatExpanded: true,
         quoteBlock: null,
         quoteContent: '',
-        tutorialWidth: 100, // 初始宽度比例
-        chatWidth: 0,     // 初始宽度比例
+        tutorialWidth: 70, // 初始宽度比例
+        chatWidth: 30,     // 初始宽度比例
         isDragging: false, // 是否正在拖拽
         startX: 0,         // 拖拽起始位置
         containerWidth: 0, // 整个页面宽度
@@ -149,6 +149,7 @@
         //alert('updateCurrentBlockId: ' + blockId+ ', maxBlockId: ' + this.maxBlockId);
       },
       updateQuote(quoteContent,quoteBlock) {
+        alert('updateQuote: ' + quoteContent + ', ' + quoteBlock);
         this.quoteBlock = quoteBlock;
         this.quoteContent = quoteContent;
       },

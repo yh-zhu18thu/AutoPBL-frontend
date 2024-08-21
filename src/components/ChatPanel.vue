@@ -3,16 +3,16 @@
     <LoadingSpinner :show="isLoading" />
     <div class="title-part">
       <button class="left-button" @click="createNewChat">New Chat</button>
-      <div class="title">{{ title }}</div>
+      <div class="title">{{ truncateTitle }}</div>
       <button class="right-button" @click="checkHistory">Check History</button>
     </div>
 
-    <div v-if="quote && status === 'init'" class="quote-part card">
-      <div class="quote-content">{{ quote }}</div>
+    <div v-if="props.quoteContent && status === 'init'" class="quote-part card">
+      <div class="quote-content">{{ props.quoteContent }}</div>
       <button class="close-button" @click="deleteQuote">✕</button>
     </div>
     <div v-else-if="quote && status === 'normal'" class="quote-part card">
-      <div class="quote-content">{{ quote }}</div>
+      <div class="quote-content">{{ props.quoteContent }}</div>
     </div>
 
     <div class="preset-function-part card">
@@ -40,10 +40,9 @@
       <template v-else>
         <div class="chat-blocks" ref="chatBlocks">
           <div v-for="(message, index) in chatMessages" :key="index" class="message">
-            <div v-if="message.role === 'user'" class="chat-message user-message card line-numbers language-markup">
-              {{ renderMarkdown(message.content) }}
+            <div v-if="message.role === 'user'" class="chat-message user-message card line-numbers language-markup" v-html="renderMarkdown(message.content)">
             </div>
-            <div v-else class="chat-message response-message card">{{ message.content }}</div>
+            <div v-else class="chat-message response-message card" v-html="renderMarkdown(message.content)"></div>
           </div>
         </div>
       </template>
@@ -100,8 +99,8 @@ const options = {
 marked.use(markedKatex(options));
 
 
-import { ref, nextTick, watch } from 'vue';
-import { defineProps, defineEmits, defineComponent } from 'vue';
+import { ref, nextTick, watch, computed } from 'vue';
+import { defineComponent } from 'vue';
 import chatService from "@/services/chatService";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
 
@@ -143,133 +142,13 @@ const props = defineProps({
 })
 
 const title = ref("问问AI");
-const status = ref('normal'); // 'init' or 'normal'
+const status = ref('init'); // 'init' or 'normal'
 const chatId = ref(null);
 const selectedPreset = ref('chat');
-const chatMessages = ref([
-        {
-            "chat_message_id": 1,
-            "role": "assistant",
-            "content": "Hello, how can I assist you today?"
-        },
-        {
-            "chat_message_id": 2,
-            "role": "user",
-            "content": "I need some help with my account."
-        },
-        {
-            "chat_message_id": 3,
-            "role": "assistant",
-            "content": "Sure, I can help with that. Can you please provide more details?"
-        },
-        {
-            "chat_message_id": 4,
-            "role": "user",
-            "content": "I forgot my password and I can\u2019t log in."
-        },
-        {
-            "chat_message_id": 5,
-            "role": "assistant",
-            "content": "No worries, I will guide you through the password reset process."
-        },
-        {
-            "chat_message_id": 6,
-            "role": "user",
-            "content": "Thank you!"
-        },
-        {
-            "chat_message_id": 7,
-            "role": "assistant",
-            "content": "You\u2019re welcome! Anything else you need help with?"
-        },
-        {
-            "chat_message_id": 8,
-            "role": "user",
-            "content": "No, that\u2019s all. Thanks!"
-        },
-        {
-            "chat_message_id": 1,
-            "role": "assistant",
-            "content": "Hello, how can I assist you today?"
-        },
-        {
-            "chat_message_id": 2,
-            "role": "user",
-            "content": "I need some help with my account."
-        },
-        {
-            "chat_message_id": 3,
-            "role": "assistant",
-            "content": "Sure, I can help with that. Can you please provide more details?"
-        },
-        {
-            "chat_message_id": 4,
-            "role": "user",
-            "content": "I forgot my password and I can\u2019t log in."
-        },
-        {
-            "chat_message_id": 5,
-            "role": "assistant",
-            "content": "No worries, I will guide you through the password reset process."
-        },
-        {
-            "chat_message_id": 6,
-            "role": "user",
-            "content": "Thank you!"
-        },
-        {
-            "chat_message_id": 7,
-            "role": "assistant",
-            "content": "You\u2019re welcome! Anything else you need help with?"
-        },
-        {
-            "chat_message_id": 8,
-            "role": "user",
-            "content": "No, that\u2019s all. Thanks!"
-        },
-        {
-            "chat_message_id": 1,
-            "role": "assistant",
-            "content": "Hello, how can I assist you today?"
-        },
-        {
-            "chat_message_id": 2,
-            "role": "user",
-            "content": "I need some help with my account."
-        },
-        {
-            "chat_message_id": 3,
-            "role": "assistant",
-            "content": "Sure, I can help with that. Can you please provide more details?"
-        },
-        {
-            "chat_message_id": 4,
-            "role": "user",
-            "content": "I forgot my password and I can\u2019t log in."
-        },
-        {
-            "chat_message_id": 5,
-            "role": "assistant",
-            "content": "No worries, I will guide you through the password reset process."
-        },
-        {
-            "chat_message_id": 6,
-            "role": "user",
-            "content": "Thank you!"
-        },
-        {
-            "chat_message_id": 7,
-            "role": "assistant",
-            "content": "You\u2019re welcome! Anything else you need help with?"
-        },
-        {
-            "chat_message_id": 8,
-            "role": "user",
-            "content": "No, that\u2019s all. Thanks!"
-        },
-    ]);
+const chatMessages = ref([]);
 const userInput = ref('');
 const getMessageIntervalId = ref(null); 
+const getTitleIntervalId = ref(null);
 
 const createNewChat = () => {
   chatId.value = null;
@@ -286,65 +165,85 @@ const deleteQuote = () => {
 };
 
 const hasQuote = () => {
-  return quoteContent !== '';
+  return props.quoteContent !== '';
 };
 
-const sendMessage = async() => {
+const truncateTitle = computed(() => {
+  if (title.value.length > 15) {
+    return title.value.substring(0, 15) + '...';
+  }
+  return title.value;
+});
+
+const truncateQuote = computed(() => {
+  if (props.quoteContent.length > 50) {
+    return props.quoteContent.substring(0, 50) + '...';
+  }
+  return props.quoteContent;
+});
+
+const sendMessage = () => {
   if (userInput.value.trim()) {
-    chatMessages.value.push({ type: 'user', content: userInput.value });
-    userInput.value = '';
+    chatMessages.value.push({ role: 'user', content: userInput.value });
     scrollToBottom();
     isLoading.value = true;
     if (status.value === 'init') {
       status.value = 'normal';
-      const chatStepId = maxStepId;
-      const chatSubStepId = maxSubStepId;
-      const chatBlockId = maxBlockId;
-      if (quoteContent !== '') {
-        chatStepId = quoteBlock.block_index.step_id;
-        chatSubStepId = quoteBlock.block_index.sub_step_id;
-        chatBlockId = quoteBlock.block_index.block_id;
+      const chatStepId = props.maxStepId;
+      const chatSubStepId = props.maxSubStepId;
+      const chatBlockId = props.maxBlockId;
+      if (props.quoteContent !== '') {
+        chatStepId = props.quoteBlock.block_index.step_id;
+        chatSubStepId = props.quoteBlock.block_index.sub_step_id;
+        chatBlockId = props.quoteBlock.block_index.block_id;
       }
-      chatService.initiateChat(tutorialId,chatStepId,chatSubStepId, chatBlockId,userInput.value,selectedPreset.value, hasQuote(), quoteContent, chatBlockId).then((response) => {
-        chatId.value = response.chat_id;
-        const nextMessageId = response.next_chat_message_id;
-        getNextMessage(nextMessageId);
+      //alert("user input"+userInput.value);
+      chatService.initiateChat(props.tutorialId,chatStepId,chatSubStepId, chatBlockId,userInput.value,selectedPreset.value, hasQuote(), props.quoteContent, chatBlockId).then((response) => {
+        if (response.status === "success") {
+          chatId.value = response.chat_id;
+          const nextMessageId = response.next_chat_message_id;
+          //alert('next msg id'+nextMessageId);
+          getNextMessage(nextMessageId);
+        }else if (response.status === "fail") {
+          alert(response.message);     
+        }else{
+          alert('Something went wrong');
+        }
+        
       });
     }else{
       chatService.sendMessage(chatId.value, userInput.value).then((response) => {
-        const nextMessageId = response.next_chat_message_id;
-        scrollToBottom();
-        getNextMessage(nextMessageId);
+        if (response.status === "success") {
+          const nextMessageId = response.next_chat_message_id;
+          //alert('next msg id'+nextMessageId);
+          getNextMessage(nextMessageId);
+        }else if (response.status === "fail") {
+          alert(response.message);
+        }else{
+          alert('Something went wrong');
+        }
       });
-
     }
+    userInput.value = '';
   }
 };
 
 const getNextMessage = (nextMessageId) => {
-  getMessageIntervalId = setInterval(() => {
-    chatService.getNextMessage(chatId.value, nextMessageId).then((response) => {
+  getMessageIntervalId.value = setInterval(() => {
+    chatService.getNextMessage(nextMessageId).then((response) => {
       if (response.status==='success'){
-          if (response.chat_message.status === 2) {
-            chatMessages.value.push({ type: 'assistant', content: response.message });
-            scrollToBottom();
-            clearInterval(getMessageIntervalId);
-            if (title.value === '问问AI') {
-              chatService.getChat(chatId.value).then((response) => {
-                if (response.status === 'success') {
-                  title.value = response.chat.title
-                }else{
-                  if (response.status === 'fail') {
-                    alert(response.message);
-                  }else{
-                    alert('Something went wrong');
-                  }
-                }
-              });
-            }
+        //alert('response'+JSON.stringify(response));
+        if (response.chat_message.status === 2) {
+          chatMessages.value.push({ role: response.chat_message.role, content: response.chat_message.content });
+          scrollToBottom();
+          clearInterval(getMessageIntervalId.value);
+          isLoading.value = false;
+          if (title.value === '问问AI') {
+            getChatTitle();
+          }
         }else if (response.chat_message.status === 1) {
             //failed
-            alert(response.message);
+          alert(response.message);
         }
       }else if (response.status === 'fail') {
         alert(response.message);
@@ -354,6 +253,26 @@ const getNextMessage = (nextMessageId) => {
     });
   }, 1000);
 }
+
+const getChatTitle = () => {
+  getTitleIntervalId.value = setInterval(() => {
+    chatService.getChat(chatId.value).then((response) => {
+      if (response.status === 'success') {
+        if (response.chat.title==="讨论") {
+          return;
+        }
+        title.value = response.chat.title
+        clearInterval(getTitleIntervalId.value);
+      }else{
+        if (response.status === 'fail') {
+          alert(response.message);
+        }else{
+          alert('Something went wrong');
+        }
+      }
+    });
+  }, 1000);
+};
 
 const scrollToBottom = () => {
   nextTick(() => {
@@ -369,10 +288,13 @@ watch(chatMessages, () => {
 });
 
 const renderMarkdown = (content) => {
+  content = content.replace(/\$\$/g, ' $$ ');
+  content = content.replace(/(?<!\$)\$(?!\$)/g, ' $$ ');
   const html = marked.parse(content);
+  //alert(html);
   setTimeout(() => {
     prism.highlightAll();
-  }, 20);
+  }, 50);
   return html;
 };
 </script>

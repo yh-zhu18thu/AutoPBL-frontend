@@ -148,7 +148,10 @@ const userAnswered = computed(() => {
 
 const renderedMarkdown = computed(() => {
   //alert('renderedMarkdown: ' + props.block.data.content);
-  const html =  marked.parse(props.block.data.content);
+  var rawContent = props.block.data.content;
+  rawContent = rawContent.replace(/\$\$/g, ' $$ ');
+  rawContent = rawContent.replace(/(?<!\$)\$(?!\$)/g, ' $$ ');
+  const html =  marked.parse(rawContent);
   //const html = props.block.data.content;
   //postpone prism.highlightAll();
   setTimeout(() => {
@@ -160,7 +163,10 @@ const renderedMarkdown = computed(() => {
 
 const renderedQuestionMarkdown = computed(() => {
   //alert('renderedQuestionMarkdown: ' + props.block.data.user_input_content.desc);
-  const html =  marked.parse(props.block.data.user_input_content.desc);
+  var rawContent = props.block.data.user_input_content.desc;
+  rawContent = rawContent.replace(/\$\$/g, ' $$ ');
+  rawContent = rawContent.replace(/(?<!\$)\$(?!\$)/g, ' $$ ');
+  const html =  marked.parse(rawContent);
   //const html = props.block.data.user_input_content.desc;
   setTimeout(() => {
     prism.highlightAll();

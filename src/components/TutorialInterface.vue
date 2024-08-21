@@ -158,6 +158,7 @@
             const quoteContent = this.selectedText;
             const quoteBlockId = this.selectedBlockId;
             const quoteBlock = this.tutorialBlocks.find(block => block.block_index.block_id === quoteBlockId);
+            alert('quoteContent: ' + quoteContent + ', quoteBlockId: ' + quoteBlockId);
             this.$emit('update-quote', quoteContent, quoteBlock);
           case 'collection':
             this.addToCollection();
