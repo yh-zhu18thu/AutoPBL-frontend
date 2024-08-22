@@ -222,6 +222,8 @@
       },
       closeCollectionPopup() {
         this.showCollectionPopup = false;
+        this.note = '';
+        this.selectedType = '';
       },
       debounceInitblocks: debounce(function() {
         this.initBlocks();
@@ -431,14 +433,18 @@
   z-index: 1000;
 }
 
-
 .popup-ui {
-  position: absolute;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background-color: white;
   border: 1px solid #ccc;
-  width: 300px;
-  padding: 10px;
-  z-index: 1000;
+  width: 350px;
+  padding: 20px;
+  z-index: 1001;
+  border-radius: 15px; /* 更圆角的设计 */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* 添加阴影 */
 }
 
 .popup-content {
@@ -447,28 +453,47 @@
 }
 
 .selected-text {
-  font-weight: bold;
-  margin-bottom: 10px;
+  font-style: italic; /* 斜体 */
+  color: #555; /* 浅色字体 */
+  background-color: #f0f0f0; /* 灰色背景 */
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
 }
 
 .selector-input {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  flex-direction: column;
+  margin-bottom: 15px;
 }
 
-.selector-input select,
-.selector-input input {
-  width: 28%;
+.selector-input select {
+  width: 100%; /* 缩短 selector */
+  margin-bottom: 10px;
+  padding: 5px;
+  border-radius: 5px; /* 圆角 selector */
+  border: 1px solid #ccc;
+}
+
+.selector-input textarea {
+  width: 100%;
+  height: 100px; /* 增大笔记输入框 */
+  padding: 10px;
+  border-radius: 5px; /* 圆角输入框 */
+  border: 1px solid #ccc;
+  resize: none; /* 禁止调整大小 */
 }
 
 .submit-button {
   width: 100%;
-  padding: 5px;
+  padding: 10px;
   background-color: #007bff;
   color: white;
   border: none;
   cursor: pointer;
+  border-radius: 20px; /* 更圆角的按钮 */
+  font-size: 16px;
+  text-align: center;
 }
 
 

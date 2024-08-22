@@ -24,9 +24,6 @@
       </div>
     </div>
   </div>
-    <div class="progress-indicator">
-      已完成 {{ progress }}%
-    </div>
     <button class="return-button" @click="goBack">
       <i class="fas fa-arrow-left"></i> 返回
     </button>
