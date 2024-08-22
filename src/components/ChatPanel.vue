@@ -51,7 +51,7 @@
             </div>
             <div v-else class="chat-message response-message card" v-html="renderMarkdown(message.content)"></div>
           </div>
-        </div>z
+        </div>
       </template>
     </div>
 
@@ -151,7 +151,7 @@ const props = defineProps({
 const title = ref("问问AI");
 const status = ref('init'); // 'init' or 'normal'
 const chatId = ref(null);
-const selectedPreset = ref('chat');
+const selectedPreset = ref('自由提问');
 const loadedQuoteContent  = ref('');
 const chatMessages = ref([]);
 const userInput = ref('');
@@ -193,7 +193,9 @@ const handleChatHistoryClick = (_chatId) => {
       chatMessages.value[0].content = chatMessages.value[0].content.substring(firstMessageIndex+1);
       status.value = 'normal';
       chatId.value = _chatId;
-      loadedQuoteContent.value = response.quote;
+      if (response.quote) {
+        loadedQuoteContent.value = response.quote;
+      }
       title.value = response.title;
       scrollToBottom();
     }else if (response.status === 'fail') {
@@ -210,7 +212,11 @@ const deleteQuote = () => {
 };
 
 const hasQuote = () => {
-  return props.quoteContent !== '';
+  if (props.quoteContent !== '' && props.quoteContent !== null && status.value === 'init') {
+    return '1';
+  }else {
+    return '0';
+  }
 };
 
 const truncateTitle = computed(() => {
@@ -242,7 +248,11 @@ const sendMessage = () => {
         chatSubStepId = props.quoteBlock.block_index.sub_step_id;
         chatBlockId = props.quoteBlock.block_index.block_id;
       }
-      chatService.initiateChat(props.tutorialId,chatStepId,chatSubStepId, chatBlockId,userInput.value,selectedPreset.value, hasQuote(), props.quoteContent, chatBlockId).then((response) => {
+      var quoteContent = '';
+      if (hasQuote()) {
+        quoteContent = props.quoteContent;
+      }
+      chatService.initiateChat(props.tutorialId,chatStepId,chatSubStepId, chatBlockId,userInput.value,selectedPreset.value, hasQuote(), quoteContent, chatBlockId).then((response) => {
         if (response.status === "success") {
           chatId.value = response.chat_id;
           const nextMessageId = response.next_chat_message_id;

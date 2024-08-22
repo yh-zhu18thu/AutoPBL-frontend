@@ -46,7 +46,7 @@ const chatService = {
 
     initiateChat: async (tutorial_id, step_id, sub_step_id, block_id,user_input_content,selected_function,has_quote,quote_content,quote_block_id) => {
         try {
-            //alert('initiateChat '+'tutorial_id: '+tutorial_id+' step_id: '+step_id+' sub_step_id: '+sub_step_id+' block_id: '+block_id+' user_input_content: '+user_input_content+' selected_function: '+selected_function+' has_quote: '+has_quote+' quote_content: '+quote_content+' quote_block_id: '+quote_block_id);
+            alert('initiateChat '+'tutorial_id: '+tutorial_id+' step_id: '+step_id+' sub_step_id: '+sub_step_id+' block_id: '+block_id+' user_input_content: '+user_input_content+' selected_function: '+selected_function+' has_quote: '+has_quote+' quote_content: '+quote_content+' quote_block_id: '+quote_block_id);
             const formData = new FormData();
             formData.append('tutorial_id', tutorial_id);
             formData.append('step_index', step_id);
