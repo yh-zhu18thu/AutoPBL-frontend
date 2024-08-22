@@ -165,6 +165,8 @@ const userAnswered = computed(() => {
 });
 
 const renderMarkdown = (content) => {
+  content = content.replace(/\n\$/g, '$');
+  content = content.replace(/\$\n/g, '$');
   content = content.replace(/\$\$/g, ' $$ ');
   content = content.replace(/(?<!\$)\$(?!\$)/g, ' $$ ');
   content = content.replace(/[\x00\x08]/g, '');
@@ -179,6 +181,8 @@ const renderMarkdown = (content) => {
 const renderedMarkdown = computed(() => {
   //alert('renderedMarkdown: ' + props.block.data.content);
   var rawContent = props.block.data.content;
+  rawContent = rawContent.replace(/\n\$/g, '$');
+  rawContent = rawContent.replace(/\$\n/g, '$');
   rawContent = rawContent.replace(/\$\$/g, ' $$ ');
   rawContent = rawContent.replace(/(?<!\$)\$(?!\$)/g, ' $$ ');
   //remove x01-x1f
@@ -197,6 +201,8 @@ const renderedMarkdown = computed(() => {
 const renderedQuestionMarkdown = computed(() => {
   //alert('renderedQuestionMarkdown: ' + props.block.data.user_input_content.desc);
   var rawContent = props.block.data.user_input_content.desc;
+  rawContent = rawContent.replace(/\n\$/g, '$');
+  rawContent = rawContent.replace(/\$\n/g, '$');
   rawContent = rawContent.replace(/\$\$/g, ' $$ ');
   rawContent = rawContent.replace(/(?<!\$)\$(?!\$)/g, ' $ ');
   rawContent = rawContent.replace(/[\x00\x08]/g, '');

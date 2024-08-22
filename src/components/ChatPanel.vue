@@ -2,10 +2,10 @@
   <div class="chat-panel">
     <LoadingSpinner :show="isLoading" />
     <div class="title-part">
-      <button class="left-button" @click="createNewChat">New Chat</button>
+      <button class="left-button" @click="createNewChat">新聊天</button>
       <div class="title">{{ truncateTitle }}</div>
       <div class="history-dropdown">
-        <button class="right-button" @click="checkHistory">Check History</button>
+        <button class="right-button" @click="checkHistory">历史记录</button>
         <div v-if="historyDropdown" class="dropdown-list">
           <ul >
             <li v-for="item in historyChats" :key="item.chat_id" @click="handleChatHistoryClick(item.chat_id)">
@@ -58,7 +58,7 @@
 
     <div class="input-part">
       <input v-model="userInput" type="text" placeholder="Type your message..." />
-      <button @click="sendMessage">Send</button>
+      <button @click="sendMessage">发送</button>
     </div>
   </div>
 </template>
@@ -491,20 +491,28 @@ button {
   display: inline-block;
 }
 
-
 .dropdown-list {
   position: absolute;
-  left: 0; /* 使下拉列表出现在按钮的左下方 */
-  top: 100%;
+  left: -80px;
+  top: 110%;
   margin-top: 8px;
-  width: 200px;
-  max-height: 150px;
+  width: 220px; /* Slightly wider for better usability */
+  max-height: 320px; /* Slightly taller for more items */
   overflow-y: auto;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  background-color: #ffffff; /* White background for consistency */
+  border: 1px solid #d1e3f8; /* Softer blue border */
+  border-radius: 8px; /* More pronounced rounding for modern look */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* More subtle shadow for depth */
+  z-index: 1010;
+  transition: opacity 0.3s ease, transform 0.3s ease; /* Smooth transition */
+  opacity: 100;
+  transform: translateY(-10px);
+}
+
+.history-dropdown .dropdown-list-enter-active,
+.history-dropdown .dropdown-list-leave-active {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .dropdown-list ul {
@@ -514,13 +522,32 @@ button {
 }
 
 .dropdown-list li {
-  padding: 8px;
+  padding: 10px 16px; /* More padding for easier clicking */
   cursor: pointer;
+  border-radius: 6px; /* Rounded corners for items */
+  transition: background-color 0.2s ease;
 }
 
 .dropdown-list li:hover {
-  background-color: #f0f0f0;
+  background-color: #e3f2fd; /* Light blue hover effect */
 }
+
+.right-button {
+  background-color: #007bff; /* Primary blue color */
+  color: white;
+  padding: 8px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 20px; /* Fully rounded button */
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.right-button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+  transform: translateY(-2px); /* Slight lift on hover */
+}
+
 
 
 </style>
