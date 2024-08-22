@@ -159,7 +159,7 @@
         //alert('updateCurrentBlockId: ' + blockId+ ', maxBlockId: ' + this.maxBlockId);
       },
       updateQuote(quoteContent,quoteBlock) {
-        alert('updateQuote: ' + quoteContent + ', ' + quoteBlock);
+        //alert('updateQuote: ' + quoteContent + ', ' + quoteBlock);
         this.quoteBlock = quoteBlock;
         this.quoteContent = quoteContent;
       },

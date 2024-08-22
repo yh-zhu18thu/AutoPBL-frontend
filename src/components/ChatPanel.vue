@@ -19,19 +19,18 @@
       <div class="quote-content">{{ props.quoteContent }}</div>
       <button class="close-button" @click="deleteQuote">✕</button>
     </div>
-    <div v-else-if="quote && status === 'normal'" class="quote-part card">
-      <div class="quote-content">{{ truncateQuote }}</div>
+    <div v-else-if="loadedQuoteContent && status === 'normal'" class="quote-part card">
+      <div class="quote-content">{{ loadedQuoteContent }}</div>
     </div>
-
     <div class="preset-function-part card">
       <template v-if="status === 'init'">
         <div class="preset-selector">
           <select v-model="selectedPreset" id="preset-select">
-            <option value="chat">自由提问</option>
-            <option value="explain">解释</option>
-            <option value="debug">Debug</option>
-            <option value="visualize">可视化</option>
-            <option value="practice">出练习题</option>
+            <option value="自由提问">自由提问</option>
+            <option value="解释">解释</option>
+            <option value="Debug">Debug</option>
+            <option value="可视化">可视化</option>
+            <option value="出练习题">出练习题</option>
             <!-- Add more options as needed -->
           </select>
         </div>
@@ -52,7 +51,7 @@
             </div>
             <div v-else class="chat-message response-message card" v-html="renderMarkdown(message.content)"></div>
           </div>
-        </div>
+        </div>z
       </template>
     </div>
 
@@ -153,6 +152,7 @@ const title = ref("问问AI");
 const status = ref('init'); // 'init' or 'normal'
 const chatId = ref(null);
 const selectedPreset = ref('chat');
+const loadedQuoteContent  = ref('');
 const chatMessages = ref([]);
 const userInput = ref('');
 const getMessageIntervalId = ref(null); 
@@ -181,10 +181,9 @@ const checkHistory = (chatId) => {
   historyDropdown.value = !historyDropdown.value;
 };
 
-const handleChatHistoryClick = (chatId) => {
-  chatService.getChatMessages(chatId).then((response) => {
+const handleChatHistoryClick = (_chatId) => {
+  chatService.getChatMessages(_chatId).then((response) => {
     if (response.status === 'success') {
-      
       // get the first chatmessage and get the selected function which is before the first :
       const firstMessage = response.chat_messages[0].content;
       const firstMessageIndex = firstMessage.indexOf(':');
@@ -193,7 +192,9 @@ const handleChatHistoryClick = (chatId) => {
       chatMessages.value = response.chat_messages;
       chatMessages.value[0].content = chatMessages.value[0].content.substring(firstMessageIndex+1);
       status.value = 'normal';
-      chatId.value = chatId;
+      chatId.value = _chatId;
+      loadedQuoteContent.value = response.quote;
+      title.value = response.title;
       scrollToBottom();
     }else if (response.status === 'fail') {
       alert(response.message);
@@ -233,15 +234,14 @@ const sendMessage = () => {
     isLoading.value = true;
     if (status.value === 'init') {
       status.value = 'normal';
-      const chatStepId = props.maxStepId;
-      const chatSubStepId = props.maxSubStepId;
-      const chatBlockId = props.maxBlockId;
+      var chatStepId = props.maxStepId;
+      var chatSubStepId = props.maxSubStepId;
+      var chatBlockId = props.maxBlockId;
       if (props.quoteContent !== '') {
         chatStepId = props.quoteBlock.block_index.step_id;
         chatSubStepId = props.quoteBlock.block_index.sub_step_id;
         chatBlockId = props.quoteBlock.block_index.block_id;
       }
-      //alert("user input"+userInput.value);
       chatService.initiateChat(props.tutorialId,chatStepId,chatSubStepId, chatBlockId,userInput.value,selectedPreset.value, hasQuote(), props.quoteContent, chatBlockId).then((response) => {
         if (response.status === "success") {
           chatId.value = response.chat_id;
@@ -261,6 +261,7 @@ const sendMessage = () => {
           const nextMessageId = response.next_chat_message_id;
           //alert('next msg id'+nextMessageId);
           getNextMessage(nextMessageId);
+          scrollToBottom();
         }else if (response.status === "fail") {
           alert(response.message);
         }else{
@@ -370,6 +371,7 @@ const renderMarkdown = (content) => {
   cursor: pointer;
   padding: 8px 12px;
   background-color: #007bff;
+  font-size: 14px;
   color: white;
   border: none;
   border-radius: 20px;
@@ -394,11 +396,16 @@ const renderMarkdown = (content) => {
   background-color: #f9f9f9;
 }
 
+.quote-content {
+  font-style: italic;
+  max-width: 90%;
+}
+
 .close-button {
   position: absolute;
   top: 5px;
   right: 5px;
-  background: none;
+  background:#007bff;
   border: none;
   font-size: 16px;
   cursor: pointer;
@@ -470,7 +477,7 @@ const renderMarkdown = (content) => {
 
 .response-message {
   align-self: flex-start; /* Aligns the entire message block to the left */
-  background-color: #f1f1f1;
+  background-color: #ffffff;
   text-align: left; /* Keeps text left-aligned within the message */
 }
 
@@ -499,8 +506,8 @@ button {
 
 .dropdown-list {
   position: absolute;
-  left: -80px;
-  top: 110%;
+  left: -120px;
+  top: 115%;
   margin-top: 8px;
   width: 220px; /* Slightly wider for better usability */
   max-height: 320px; /* Slightly taller for more items */
@@ -539,7 +546,7 @@ button {
 }
 
 .right-button {
-  background-color: #007bff; /* Primary blue color */
+  background-color: #007bff; /* Blue */
   color: white;
   padding: 8px 16px;
   font-size: 14px;

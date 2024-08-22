@@ -123,6 +123,7 @@
   margin-top: 15px;
   margin-bottom: 30px;
   margin-right: 10px;
+  padding-right: 10px;
   color: #444444;
   white-space: normal; /* Allow the text to wrap */
   word-break: break-word; /* Break words if they are too long to fit */
