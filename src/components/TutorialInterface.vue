@@ -10,6 +10,7 @@
           :is-newest-block="isNewestBlock"
           @update-block-id="towardsNextBlock" 
           @update-block="updateBlock"
+          @refresh-block="refreshBlock"
           ref="tutorialBlocks"
         />
       </div>
@@ -70,6 +71,7 @@
         tutorialBlocks: [],
         newMessage: '',
         getBlockIntervalId: null,
+        timeoutId: null,
         isLoading: false, //control the occurence of loading spinner
         showMenu: false,
         selectedText: '',
@@ -233,6 +235,7 @@
             }
             this.tutorialBlocks.push(newBlock);
             this.updateBlockId(newBlock.block_index.block_id);
+            clearTimeout(this.timeoutId);
             clearInterval(this.getBlockIntervalId);
           }else{
             if (response.status == 'generating'){
@@ -250,6 +253,12 @@
             }
           }
         }, 1000);
+        //set timeout to clear the interval if no response in 120 seconds and refresh the block
+        this.timeoutId = setTimeout(() => {
+          alert("抱歉，生成时间过长，系统将自动重新生成");
+          clearInterval(this.getBlockIntervalId);
+          this.refreshBlock(this.blockId);
+        }, 120000);
       },
       towardsNextBlock(blockId) {
         //call get next block, until really get the next block
@@ -323,6 +332,14 @@
           }
         }
       },
+      deleteBlock(blockId){
+        for (let i = 0; i < this.tutorialBlocks.length; i++) {
+          if (this.tutorialBlocks[i].block_index.block_id == blockId) {
+            this.tutorialBlocks.splice(i, 1);
+            break;
+          }
+        }
+      },
       isNewestBlock(blockId) {
         return this.maxBlockId <= blockId;
       },
@@ -332,6 +349,25 @@
           tutorialContainer.scrollTop = tutorialContainer.scrollHeight;
         });
       },
+      //目前只支持refresh最新的block（在没有回答时，或者生成不成功时）
+      refreshBlock: async function(blockId) {
+        this.deleteBlock(blockId);
+        const response = await contentService.refreshBlock(this.tutorialId,blockId);
+        if (response.status === "success") {
+          const nextBlockId = response.regenerated_block_id;
+          this.updateBlockId(nextBlockId);
+          this.getNextBlock();
+          this.deleteBlock(blockId);
+        }else{
+          if (response.status === "fail") {
+            alert(response.info);
+            this.$router.push('/board');
+          }else{
+            alert('Failed to fetch tutorial progress');
+            this.$router.push('/board');
+          }
+        }
+      }
     },
   };
   </script>

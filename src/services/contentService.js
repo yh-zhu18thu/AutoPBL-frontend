@@ -112,6 +112,20 @@ const contentService = {
         }
     },
 
+    refreshBlock: async (tutorial_id, block_id) => {
+        try{
+            const formData = new FormData();
+            formData.append('tutorial_id', tutorial_id);
+            formData.append('block_id', block_id);
+            formData.append('delete_subsequent_blocks', 1);
+            const response = await axiosInstance.post('/api/tutorial/regenerate_block', formData);
+            return response.data
+        } catch (error) {
+            console.error('Error while refreshing block', error);
+            return null;
+        }
+    }
+
 }
 
 export default contentService;

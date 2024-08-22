@@ -51,6 +51,11 @@
         </div>
       </div>
     </div>
+    <div v-show="!userAnswered" class="block-actions">
+      <button class="action-button refresh-button" @click="handleRefresh">
+        <img :src="refreshIconUrl" alt="刷新" />
+      </button>
+    </div>
   </div>
 </template>
 
@@ -101,6 +106,8 @@ marked.use(markedKatex(options));
 
 import { ref, watch, computed, onMounted } from 'vue';
 import robotLogo from '@/assets/robot.png';
+import refreshIcon from '@/assets/refresh.png';
+import deleteIcon from '@/assets/delete.png';
 import contentService from '@/services/contentService';
 
 // Props
@@ -130,6 +137,10 @@ const isTutorial = computed(() => props.block.block_type != 'user_query');
 const blockClass = computed(() => 'tutorial-block');
 
 const portraitUrl = computed(() => robotLogo);
+
+const refreshIconUrl = computed(() => refreshIcon);
+
+const deleteIconUrl = computed(() => deleteIcon);
 
 const blockIdentifier = computed(() => {
   const { step_id, sub_step_id, block_id } = props.block.block_index;
@@ -169,7 +180,7 @@ const renderedMarkdown = computed(() => {
   //alert('renderedMarkdown: ' + props.block.data.content);
   var rawContent = props.block.data.content;
   rawContent = rawContent.replace(/\$\$/g, ' $$ ');
-  rawContent = rawContent.replace(/(?<!\$)\$(?!\$)/g, ' $ ');
+  rawContent = rawContent.replace(/(?<!\$)\$(?!\$)/g, ' $$ ');
   //remove x01-x1f
   rawContent = rawContent.replace(/[\x00\x08]/g, '');
   const html =  marked.parse(rawContent);
@@ -236,7 +247,7 @@ onMounted(() => {
 
 //countdown
 const startCountDown = () => {
-  if (isCountingDown.value) return;
+  timeLeft.value = 20;
   isCountingDown.value = true;
   countDownInterval = setInterval(() => {
     timeLeft.value -= 1;
@@ -276,7 +287,7 @@ const submitUserAnswer = async (type, answer) => {
   }
 };
 
-const emit = defineEmits(['update-block','update-block-id']);
+const emit = defineEmits(['update-block','update-block-id','refresh-block']);
 
 const updateBlock = (block) => {
   //alert('updateBlock: ' + JSON.stringify(block));
@@ -286,6 +297,10 @@ const updateBlock = (block) => {
 const updateBlockId = (newBlockId) => {
   //alert('updateBlockId: ' + newBlockId);
   emit('update-block-id', newBlockId);
+};
+
+const handleRefresh = () => {
+  emit('refresh-block', props.block.block_index.block_id);
 };
 
 </script>
@@ -307,6 +322,7 @@ const updateBlockId = (newBlockId) => {
   background-color: #f9f9f9;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   max-width: 95%; /* Adjust this to control the width */
+  position: relative;
 }
 
 .tutorial-block.tutorial-block {
@@ -431,6 +447,26 @@ const updateBlockId = (newBlockId) => {
   color: #4A4A4A; /* 深灰色 */
   text-align: center; /* 水平居中 */
   font-size: 16px; /* 字体大小 */
+}
+
+.block-actions {
+  position: absolute;
+  bottom: 10px; /* 调整这个值以确保按钮在块的右下角稍外侧 */
+  right: 10px;  /* 调整这个值以确保按钮在块的右下角稍外侧 */
+  display: flex;
+  gap: 10px;
+}
+
+.action-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.refresh-button img,
+.delete-button img {
+  width: 24px;
+  height: 24px;
 }
 
 </style>
