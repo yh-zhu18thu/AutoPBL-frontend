@@ -3,7 +3,7 @@
   <div v-if="showMenu" :style="menuStyle" class="selection-menu">
       <button @click="copy">复制</button>
       <button @click="quote">引用</button>
-      <button @click="addToCollection">收藏</button>
+      <button @click="addToCollection">笔记</button>
   </div>
 </template>
 

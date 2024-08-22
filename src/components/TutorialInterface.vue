@@ -3,6 +3,25 @@
       <LoadingSpinner :show="isLoading" />
       <div class="tutorial-container" @mouseup="handleSelection" ref="tutorialContainer">
         <SelectionMenu :showMenu="showMenu" :menuStyle="menuStyle" @menu-selection="handleMenuSelection" @close="showMenu = false"/>
+        <div v-if="showCollectionPopup" class="overlay" @click="closeCollectionPopup"></div>
+        <div
+          v-if="showCollectionPopup"
+          :style="collectionPopupPosition"
+          class="popup-ui"
+        >
+          <div class="popup-content">
+            <div class="selected-text">{{ selectedText }}</div>
+            <div class="selector-input">
+              <select v-model="selectedType">
+                <option value="type1">重点</option>
+                <option value="type2">疑惑</option>
+                <option value="type3">想法</option>
+              </select>
+              <input type="text" v-model="note" placeholder="添加笔记..." />
+            </div>
+            <button @click="addToCollection" class="submit-button">提交</button>
+          </div>
+        </div>
         <TutorialBlock 
           v-for="(blk, index) in filteredBlocks" 
           :key="index" 
@@ -21,6 +40,7 @@
   import {default as TutorialBlock} from './TutorialBlock.vue';
   import {debounce} from 'lodash';
   import contentService from '@/services/contentService';
+  import collectionService from '@/services/collectionService';
   import LoadingSpinner from './LoadingSpinner.vue';
   import SelectionMenu from './SelectionMenu.vue';
   
@@ -74,11 +94,18 @@
         timeoutId: null,
         isLoading: false, //control the occurence of loading spinner
         showMenu: false,
-        selectedText: '',
         menuStyle: {
           top: '0px',
           left: '0px',
         },
+        selectedText: '',
+        showCollectionPopup: false,
+        collectionPopupPosition: {
+          top: '0px',
+          left: '0px',
+        },
+        selectedType: '',
+        note: '',
         selectedBlockId: null,
         contentFilter: 'all',
         total_steps: 0,
@@ -104,7 +131,12 @@
         this.$nextTick(() => {
           this.scrollToBottom();
         });
-      }
+      },
+      showCollectionPopup: function(newVal, oldVal) {
+        if (newVal) {
+          this.collectionPopupPosition = { ...this.menuStyle };
+        }
+      },
     },
     methods: {
       handleSelection() {
@@ -163,15 +195,33 @@
             alert('quoteContent: ' + quoteContent + ', quoteBlockId: ' + quoteBlockId);
             this.$emit('update-quote', quoteContent, quoteBlock);
           case 'collection':
-            this.addToCollection();
+            this.showCollectionPopup = true;
             break;
           default:
             break;
         }
         this.showMenu = false;
       },
-      addToCollection() {
-        // Logic to add selected text to collection
+      addToCollection: async function() {
+        const collectionContent = {
+          type: this.selectedType,
+          note: this.note,
+          content: this.selectedText,
+        };
+        const response = await collectionService.addNewCollection(this.tutorialId,this.stepId,this.subStepId,this.selectedBlockId,0,JSON.stringify(collectionContent));
+        if (response.status === "success") {
+          alert('成功添加到收藏夹');
+          this.showCollectionPopup = false;
+        }else{
+          if (response.status === "fail") {
+            alert(response.info);
+          }else{
+            alert('Failed to fetch tutorial progress');
+          }
+        }
+      },
+      closeCollectionPopup() {
+        this.showCollectionPopup = false;
       },
       debounceInitblocks: debounce(function() {
         this.initBlocks();
@@ -332,6 +382,15 @@
   </script>
   
 <style scoped>
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
 .tutorial-interface {
   display: flex;
   flex-direction: column;
@@ -353,6 +412,65 @@
   margin-left: auto;
   margin-right: auto;
 }
+
+.selection-menu {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 5px;
+  z-index: 1000;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+
+.popup-ui {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  width: 300px;
+  padding: 10px;
+  z-index: 1000;
+}
+
+.popup-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.selected-text {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.selector-input {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.selector-input select,
+.selector-input input {
+  width: 28%;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 5px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
 
 </style>
   

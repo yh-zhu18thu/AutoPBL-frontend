@@ -332,6 +332,9 @@ watch(chatMessages, () => {
 });
 
 const renderMarkdown = (content) => {
+  //remove the \n before and after the $
+  content = content.replace(/\n\$/g, '$');
+  content = content.replace(/\$\n/g, '$');
   content = content.replace(/\$\$/g, ' $$ ');
   content = content.replace(/(?<!\$)\$(?!\$)/g, ' $$ ');
   content = content.replace(/[\x00\x08]/g, '');
