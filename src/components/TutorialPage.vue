@@ -26,6 +26,7 @@
           @update-step-id="updateCurrentStepId" 
           @update-sub-step-id="updateCurrentSubStepId" 
           @update-block-id="updateCurrentBlockId"
+          @force-update="forceUpdate"
           @update-quote="updateQuote"
         />
       </div>
@@ -140,6 +141,15 @@
           this.maxSubStepId = subStepId;
         }
         //alert('maxSubStepId: ' + this.maxSubStepId);
+      },
+      forceUpdate(stepId, subStepId, blockId) {
+        this.stepId = stepId;
+        this.subStepId = subStepId;
+        this.currentBlockId = blockId;
+
+        this.maxStepId = stepId;
+        this.maxSubStepId = subStepId;
+        this.maxBlockId = blockId;
       },
       updateCurrentBlockId(blockId) {
         this.currentBlockId = blockId

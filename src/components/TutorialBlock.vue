@@ -51,7 +51,7 @@
         </div>
       </div>
     </div>
-    <div v-show="!userAnswered" class="block-actions">
+    <div class="block-actions">
       <button class="action-button refresh-button" @click="handleRefresh">
         <img :src="refreshIconUrl" alt="刷新" />
       </button>
@@ -300,7 +300,7 @@ const updateBlockId = (newBlockId) => {
 };
 
 const handleRefresh = () => {
-  emit('refresh-block', props.block.block_index.block_id);
+  emit('refresh-block', props.block.block_index.step_id,props.block.block_index.sub_step_id,props.block.block_index.block_id);
 };
 
 </script>

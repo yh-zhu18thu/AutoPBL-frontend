@@ -266,50 +266,6 @@
         this.updateBlockId(blockId);
         this.getNextBlock();
       },
-      sendMessage: async function() {
-        if (this.newMessage.trim()) {
-          //disable the send button
-          this.messageOntheWay = true;
-          const hasQuote = this.quote?1: 0;
-          //alert('quote content'+this.quote+'has quote'+hasQuote+'quote block id'+this.quoteBlockId);
-          //console.log('tutorialId', this.tutorialId, 'stepId', this.stepId, 'subStepId', this.subStepId, 'blockId', this.blockId, 'newMessage', this.newMessage, 'selectedFunction', this.selectedFunction, 'hasQuote', hasQuote, 'quote', this.quote, 'quoteBlockId', this.quoteBlockId);
-          const selectedFunction = this.selectedFunction ? this.selectedFunction.label : null;
-          const response = await contentService.postUserQuery(
-            this.tutorialId, this.stepId, this.subStepId, this.blockId, 
-            this.newMessage, selectedFunction, hasQuote, this.quote, this.quoteBlockId);
-          this.newMessage = '';
-          this.quote = '';
-          this.selectedFunction = null;
-          this.$nextTick(() => {
-            const tutorialContainer = this.$el.querySelector('.tutorial-container');
-            tutorialContainer.scrollTop = tutorialContainer.scrollHeight;
-          });
-          if (response.status === "success") {
-            const confirmedBlock = response.confirmed_block;
-            this.tutorialBlocks.push(confirmedBlock);
-            const nextBlockId = response.next_block_id;
-            this.updateBlockId(nextBlockId);
-            this.messageOntheWay = false;
-            this.getNextBlock();
-          }else {
-            if (response.status === "fail") {
-              alert(response.info);
-            } else {
-              alert('Failed to submit user query');
-            }
-            this.messageOntheWay = false;
-          }
-        }
-      },
-      selectFunction(button) {
-        this.selectedFunction = button;
-      },
-      removeFunction() {
-        this.selectedFunction = null;
-      },
-      addFunction() {
-        // Logic to add new function buttons if needed
-      },
       removeQuote() {
         this.quote = '';
       },
@@ -332,10 +288,13 @@
           }
         }
       },
-      deleteBlock(blockId){
+      forceUpdate(stepId, subStepId, blockId) {
+        this.$emit('force-update', stepId, subStepId, blockId);
+      },
+      removeBlockAfter(blockId){
         for (let i = 0; i < this.tutorialBlocks.length; i++) {
           if (this.tutorialBlocks[i].block_index.block_id == blockId) {
-            this.tutorialBlocks.splice(i, 1);
+            this.tutorialBlocks = this.tutorialBlocks.slice(0, i);
             break;
           }
         }
@@ -350,12 +309,12 @@
         });
       },
       //目前只支持refresh最新的block（在没有回答时，或者生成不成功时）
-      refreshBlock: async function(blockId) {
-        this.deleteBlock(blockId);
-        const response = await contentService.refreshBlock(this.tutorialId,blockId);
+      refreshBlock: async function(stepId,subStepId,blockId) {
+        this.removeBlockAfter(blockId);
+        const response = await contentService.refreshBlock(this.tutorialId, blockId);
         if (response.status === "success") {
           const nextBlockId = response.regenerated_block_id;
-          this.updateBlockId(nextBlockId);
+          this.forceUpdate(stepId, subStepId, nextBlockId);
           this.getNextBlock();
           this.deleteBlock(blockId);
         }else{
