@@ -109,8 +109,23 @@
     transition: background-color 0.3s;
   }
   
-  button:hover {
-    background-color: #0056b3;
+  button[type="submit"] {
+    background-color: #1877f2;
+    color: #fff;
+    margin-bottom: 0.5rem;
+  }
+
+  button[type="submit"]:hover {
+    background-color: #166fe5;
+  }
+
+  button:last-child {
+    background-color: #787878;
+    color: #fff;
+  }
+
+  button:last-child:hover {
+    background-color: #656565;
   }
   
   /* 输入框样式 */
