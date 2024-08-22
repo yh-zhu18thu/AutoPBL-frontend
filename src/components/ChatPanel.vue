@@ -57,7 +57,7 @@
     </div>
 
     <div class="input-part">
-      <input v-model="userInput" type="text" placeholder="Type your message..." />
+      <input v-model="userInput" type="text" placeholder="请输入你的问题..." />
       <button @click="sendMessage">发送</button>
     </div>
   </div>
@@ -409,7 +409,7 @@ const renderMarkdown = (content) => {
   margin: 10px;
   border: 1px solid #ddd;
   border-radius: 12px;
-  background-color: #f9f9f9;
+  background-color: #b3e0fa;
 }
 
 .preset-selector {
@@ -422,6 +422,12 @@ const renderMarkdown = (content) => {
   border-radius: 12px;
   border: 1px solid #ccc;
   box-sizing: border-box;
+}
+
+.preset-display {
+  text-align: center;
+  font-weight: bold;
+  margin-top: 5px;
 }
 
 .chat-interface {
