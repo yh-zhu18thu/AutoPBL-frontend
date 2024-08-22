@@ -4,7 +4,10 @@
       <img :src="portraitUrl" alt="Portrait" class="portrait" />
       <div class="tutorial-block-content">
         <div v-html="renderedMarkdown" class="tutorial-content line-numbers language-markup" ></div>
-        <div class="user-question">
+        <div v-if="isCountingDown" class="countdown">
+          <p> 还有 {{ timeLeft }} 秒可以查看问题 </p>
+        </div>
+        <div v-else class="user-question">
           <div class="question-content" v-html="renderedQuestionMarkdown"></div>
           <div v-if="block.data.user_input_content.type === 'multi_choice'">
             <button 
@@ -14,8 +17,8 @@
               @click="handleUserMultiChoice(index)"
               :class="{ 'selected-choice': selectedChoice === choice.choice_index , 'disabled-button': userAnswered}"
               :disabled="userAnswered"
+              v-html="renderMarkdown(choice.choice_content)"
             >
-              {{ choice.choice_content }}
             </button>
           </div>
           <div v-else-if="block.data.user_input_content.type === 'single_choice'">
@@ -24,8 +27,8 @@
               @click="handleUserSingleChoice"
               :disabled="userAnswered"
               :class="{ 'disabled-button': userAnswered}"
+              v-html="renderMarkdown(block.data.user_input_content.choice)"
             >
-              {{ block.data.user_input_content.choice }}
             </button>
           </div>
           <div v-else-if="block.data.user_input_content.type === 'text_input'" class="text-input-section">
@@ -116,6 +119,10 @@ const props = defineProps({
 const userInput = ref('');
 const selectedChoice = ref(-1);
 const selectedTextInputType = ref('');
+//for countdown
+const timeLeft = ref(20);
+const isCountingDown = ref(false);
+let countDownInterval = null;
 
 // Computed properties
 const isTutorial = computed(() => props.block.block_type != 'user_query');
@@ -146,12 +153,27 @@ const userAnswered = computed(() => {
   return false;
 });
 
+const renderMarkdown = (content) => {
+  content = content.replace(/\$\$/g, ' $$ ');
+  content = content.replace(/(?<!\$)\$(?!\$)/g, ' $$ ');
+  content = content.replace(/[\x00\x08]/g, '');
+  const html = marked.parse(content);
+  //alert(html);
+  setTimeout(() => {
+    prism.highlightAll();
+  }, 50);
+  return html;
+};
+
 const renderedMarkdown = computed(() => {
   //alert('renderedMarkdown: ' + props.block.data.content);
   var rawContent = props.block.data.content;
   rawContent = rawContent.replace(/\$\$/g, ' $$ ');
-  rawContent = rawContent.replace(/(?<!\$)\$(?!\$)/g, ' $$ ');
+  rawContent = rawContent.replace(/(?<!\$)\$(?!\$)/g, ' $ ');
+  //remove x01-x1f
+  rawContent = rawContent.replace(/[\x00\x08]/g, '');
   const html =  marked.parse(rawContent);
+  //alert('renderedMarkdown: ' + html);
   //const html = props.block.data.content;
   //postpone prism.highlightAll();
   setTimeout(() => {
@@ -165,7 +187,8 @@ const renderedQuestionMarkdown = computed(() => {
   //alert('renderedQuestionMarkdown: ' + props.block.data.user_input_content.desc);
   var rawContent = props.block.data.user_input_content.desc;
   rawContent = rawContent.replace(/\$\$/g, ' $$ ');
-  rawContent = rawContent.replace(/(?<!\$)\$(?!\$)/g, ' $$ ');
+  rawContent = rawContent.replace(/(?<!\$)\$(?!\$)/g, ' $ ');
+  rawContent = rawContent.replace(/[\x00\x08]/g, '');
   const html =  marked.parse(rawContent);
   //const html = props.block.data.user_input_content.desc;
   setTimeout(() => {
@@ -188,6 +211,9 @@ watch(
         selectedChoice.value = Number(userInputContent);
       }
     }
+    if (props.isNewestBlock(newBlock.block_index.block_id)) {
+      startCountDown();
+    }
   },
   { deep: true }
 );
@@ -203,12 +229,22 @@ onMounted(() => {
       selectedChoice.value = Number(userInputContent);
     }
   }
+  if (props.isNewestBlock(props.block.block_index.block_id)) {
+    startCountDown();
+  }
 });
 
-// Methods
-const handleGPT = () => {
-  selectedTextInputType.value = 'gpt';
-  console.log('GPT帮我答');
+//countdown
+const startCountDown = () => {
+  if (isCountingDown.value) return;
+  isCountingDown.value = true;
+  countDownInterval = setInterval(() => {
+    timeLeft.value -= 1;
+    if (timeLeft.value <= 0) {
+      clearInterval(countDownInterval);
+      isCountingDown.value = false;
+    }
+  }, 1000);
 };
 
 const handleUserTextInput = () => {
@@ -391,5 +427,10 @@ const updateBlockId = (newBlockId) => {
   border-style: solid;
 }
 
+.countdown {
+  color: #4A4A4A; /* 深灰色 */
+  text-align: center; /* 水平居中 */
+  font-size: 16px; /* 字体大小 */
+}
 
 </style>

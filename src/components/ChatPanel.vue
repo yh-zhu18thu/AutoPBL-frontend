@@ -334,6 +334,7 @@ watch(chatMessages, () => {
 const renderMarkdown = (content) => {
   content = content.replace(/\$\$/g, ' $$ ');
   content = content.replace(/(?<!\$)\$(?!\$)/g, ' $$ ');
+  content = content.replace(/[\x00\x08]/g, '');
   const html = marked.parse(content);
   //alert(html);
   setTimeout(() => {
