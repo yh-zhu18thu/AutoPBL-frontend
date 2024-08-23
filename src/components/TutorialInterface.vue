@@ -83,7 +83,7 @@
     },
     computed: {
       filteredBlocks() {
-        return this.tutorialBlocks.filter(block => block.block_type === 'tutorial');
+        return this.tutorialBlocks;
       },
     },
     data() {
@@ -294,16 +294,19 @@
             if (response.status == 'generating'){
               this.isLoading = true;
             } else if (response.status === "fault") {
-              alert("generation failed");
+              alert("生成失败");
             } else {
               if (response.status === "fail") {
                 alert(response.info);
-                this.$router.push('/board');
+                //this.$router.push('/board');
               } else {
                 alert('Failed to fetch tutorial progress');
-                this.$router.push('/board');
+                //this.$router.push('/board');
               }
             }
+            alert("抱歉，生成时间出错，系统将自动重新生成");
+            clearInterval(this.getBlockIntervalId);
+            this.refreshBlock(this.stepId, this.subStepId, this.blockId);
           }
         }, 1000);
         //set timeout to clear the interval if no response in 120 seconds and refresh the block
