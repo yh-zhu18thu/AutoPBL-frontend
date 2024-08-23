@@ -146,6 +146,19 @@
     border-radius: 4px;
     box-sizing: border-box;
   }
+
+  textarea{
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    height: 150px;
+  }
   </style>
   
   
