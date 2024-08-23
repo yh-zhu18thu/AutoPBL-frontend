@@ -16,7 +16,7 @@
       </div>
     </div>
     <div v-if="props.quoteContent && status === 'init'" class="quote-part card">
-      <div class="quote-content">{{ props.quoteContent }}</div>
+      <div class="quote-content">{{ truncatePropQuote }}</div>
       <button class="close-button" @click="deleteQuote">✕</button>
     </div>
     <div v-else-if="loadedQuoteContent && status === 'normal'" class="quote-part card">
@@ -232,6 +232,13 @@ const truncateQuote = computed(() => {
     return loadedQuoteContent.value.substring(0, 80) + '...';
   }
   return loadedQuoteContent.value;
+});
+
+const truncatePropQuote = computed(() => {
+  if (props.quoteContent.length > 80) {
+    return props.quoteContent.substring(0, 80) + '...';
+  }
+  return props.quoteContent;
 });
 
 const sendMessage = () => {
