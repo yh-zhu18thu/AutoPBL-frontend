@@ -20,7 +20,7 @@
       <button class="close-button" @click="deleteQuote">✕</button>
     </div>
     <div v-else-if="loadedQuoteContent && status === 'normal'" class="quote-part card">
-      <div class="quote-content">{{ loadedQuoteContent }}</div>
+      <div class="quote-content" :title="loadedQuoteContent">{{ truncateQuote }}</div>
     </div>
     <div class="preset-function-part card">
       <template v-if="status === 'init'">
@@ -212,7 +212,7 @@ const deleteQuote = () => {
 };
 
 const hasQuote = () => {
-  if (props.quoteContent !== '' && props.quoteContent !== null && status.value === 'init') {
+  if (props.quoteContent !== '' && props.quoteContent !== null) {
     return '1';
   }else {
     return '0';
@@ -227,10 +227,11 @@ const truncateTitle = computed(() => {
 });
 
 const truncateQuote = computed(() => {
-  if (props.quoteContent.length > 50) {
-    return props.quoteContent.substring(0, 50) + '...';
+  //alert('loadedQuoteContent'+loadedQuoteContent.value+'length'+loadedQuoteContent.value.length);
+  if (loadedQuoteContent.value.length > 80) {
+    return loadedQuoteContent.value.substring(0, 80) + '...';
   }
-  return props.quoteContent;
+  return loadedQuoteContent.value;
 });
 
 const sendMessage = () => {
@@ -249,9 +250,11 @@ const sendMessage = () => {
         chatBlockId = props.quoteBlock.block_index.block_id;
       }
       var quoteContent = '';
-      if (hasQuote()) {
+      if (hasQuote()=='1') {
         quoteContent = props.quoteContent;
       }
+      loadedQuoteContent.value = quoteContent;
+      deleteQuote();
       chatService.initiateChat(props.tutorialId,chatStepId,chatSubStepId, chatBlockId,userInput.value,selectedPreset.value, hasQuote(), quoteContent, chatBlockId).then((response) => {
         if (response.status === "success") {
           chatId.value = response.chat_id;
@@ -342,6 +345,12 @@ watch(chatMessages, () => {
   scrollToBottom();
 });
 
+watch(() => props.quoteContent, () => {
+  if (props.quoteContent !== '' && props.quoteContent !== null) {
+    createNewChat();
+  }
+});
+
 const renderMarkdown = (content) => {
   //remove the \n before and after the $
   content = content.replace(/\n\$/g, '$');
@@ -409,6 +418,7 @@ const renderMarkdown = (content) => {
 .quote-content {
   font-style: italic;
   max-width: 90%;
+  cursor: default;
 }
 
 .close-button {
