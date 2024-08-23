@@ -310,7 +310,7 @@
         this.timeoutId = setTimeout(() => {
           alert("抱歉，生成时间过长，系统将自动重新生成");
           clearInterval(this.getBlockIntervalId);
-          this.refreshBlock(this.blockId);
+          this.refreshBlock(this.stepId, this.subStepId, this.blockId);
         }, 120000);
       },
       towardsNextBlock(blockId) {
@@ -363,6 +363,7 @@
       },
       //目前只支持refresh最新的block（在没有回答时，或者生成不成功时）
       refreshBlock: async function(stepId,subStepId,blockId) {
+        //alert('refresh block: ' + blockId);
         this.removeBlockAfter(blockId);
         const response = await contentService.refreshBlock(this.tutorialId, blockId);
         if (response.status === "success") {
