@@ -174,6 +174,13 @@ const renderMarkdown = (content) => {
   //alert(html);
   setTimeout(() => {
     prism.highlightAll();
+    setTimeout(() => {
+      const links = document.querySelectorAll('a[href]');
+      links.forEach(link => {
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
+      });
+    }, 50);
   }, 50);
   return html;
 };
@@ -193,6 +200,13 @@ const renderedMarkdown = computed(() => {
   //postpone prism.highlightAll();
   setTimeout(() => {
     prism.highlightAll();
+    setTimeout(() => {
+      const links = document.querySelectorAll('a[href]');
+      links.forEach(link => {
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
+      });
+    }, 50);
   }, 50);
   return html;
 });
@@ -210,6 +224,13 @@ const renderedQuestionMarkdown = computed(() => {
   //const html = props.block.data.user_input_content.desc;
   setTimeout(() => {
     prism.highlightAll();
+    setTimeout(() => {
+      const links = document.querySelectorAll('a[href]');
+      links.forEach(link => {
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
+      });
+    }, 50);
   }, 50);
   return html;
 });

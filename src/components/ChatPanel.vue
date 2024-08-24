@@ -379,6 +379,7 @@ watch(() => props.quoteContent, () => {
   }
 });
 
+
 const renderMarkdown = (content) => {
   //remove the \n before and after the $
   content = content.replace(/\n\$/g, '$');
@@ -390,6 +391,13 @@ const renderMarkdown = (content) => {
   //alert(html);
   setTimeout(() => {
     prism.highlightAll();
+    setTimeout(() => {
+      const links = document.querySelectorAll('a[href]');
+      links.forEach(link => {
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
+      });
+    }, 50);
   }, 50);
   return html;
 };
