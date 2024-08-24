@@ -91,8 +91,8 @@
       },
       selectSubItem(item,subItem) {
         // Handle sub-item selection
-        this.$emit('update-step-id', item.index);
-        this.$emit('update-sub-step-id', subItem.index);
+        this.$emit('update-step-id', item.index, subItem.index);
+        //this.$emit('update-sub-step-id', subItem.index);
       },
       isDisabled(item, subItem) {
         if (item.index > this.maxStepId) {

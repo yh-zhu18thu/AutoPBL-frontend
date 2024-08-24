@@ -281,8 +281,8 @@
             //alert('new block step_id: ' + newBlock.block_index.step_id + ', sub_step_id: ' + newBlock.block_index.sub_step_id + ', block_id: ' + newBlock.block_index.block_id);
             //alert('current step_id: ' + this.stepId + ', sub_step_id: ' + this.subStepId);
             if (newBlock.block_index.sub_step_id != this.subStepId || newBlock.block_index.step_id != this.stepId) {
-              this.$emit('update-step-id', newBlock.block_index.step_id);
-              this.$emit('update-sub-step-id', newBlock.block_index.sub_step_id);
+              this.$emit('update-step-id', newBlock.block_index.step_id, newBlock.block_index.sub_step_id);
+              //this.$emit('update-sub-step-id', newBlock.block_index.sub_step_id);
               //clear the chat blocks
               this.tutorialBlocks = [];
             }
