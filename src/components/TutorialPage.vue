@@ -139,10 +139,9 @@
         //alert('maxStepId: ' + this.maxStepId);
       },
       forceUpdate(stepId, subStepId, blockId) {
-        this.stepId = stepId;
-        this.subStepId = subStepId;
+        this.currentstepId = stepId;
+        this.currentsubStepId = subStepId;
         this.currentBlockId = blockId;
-
         this.maxStepId = stepId;
         this.maxSubStepId = subStepId;
         this.maxBlockId = blockId;
