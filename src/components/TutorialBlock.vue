@@ -250,7 +250,11 @@ watch(
       }
     }
     if (props.isNewestBlock(newBlock.block_index.block_id)) {
+      //alert('startCountDown from watcher');
       startCountDown();
+    }else {
+      clearInterval(countDownInterval);
+      isCountingDown.value = false;
     }
   },
   { deep: true }
@@ -268,12 +272,16 @@ onMounted(() => {
     }
   }
   if (props.isNewestBlock(props.block.block_index.block_id)) {
+    //alert('startCountDown from onMounted');
     startCountDown();
   }
 });
 
 //countdown
 const startCountDown = () => {
+  if (isCountingDown.value) {
+    return;
+  }
   timeLeft.value = 20;
   isCountingDown.value = true;
   countDownInterval = setInterval(() => {
