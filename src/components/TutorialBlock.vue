@@ -3,12 +3,12 @@
     <div :class="['tutorial-block-header','tutorial']">
       <img :src="portraitUrl" alt="Portrait" class="portrait" />
       <div class="tutorial-block-content">
-        <div v-html="renderedMarkdown" class="tutorial-content line-numbers language-markup" ></div>
+        <div v-html="renderMarkdown(props.block.data.content)" class="tutorial-content line-numbers language-markup" ></div>
         <div v-if="isCountingDown" class="countdown">
           <p> 还有 {{ timeLeft }} 秒可以查看问题 </p>
         </div>
         <div v-else class="user-question">
-          <div class="question-content" v-html="renderedQuestionMarkdown"></div>
+          <div class="question-content" v-html="renderMarkdown(props.block.data.user_input_content.desc)"></div>
           <div v-if="block.data.user_input_content.type === 'multi_choice'">
             <button 
               v-for="choice,index in block.data.user_input_content.choices" 
@@ -179,61 +179,17 @@ const renderMarkdown = (content) => {
       links.forEach(link => {
         link.setAttribute('target', '_blank');
         link.setAttribute('rel', 'noopener noreferrer');
+        //set onclick event to prevent default behavior
+        link.onclick = (e) => {
+          e.stopPropagation();
+        };
       });
     }, 50);
   }, 50);
   return html;
 };
 
-const renderedMarkdown = computed(() => {
-  //alert('renderedMarkdown: ' + props.block.data.content);
-  var rawContent = props.block.data.content;
-  rawContent = rawContent.replace(/\n\$/g, '$');
-  rawContent = rawContent.replace(/\$\n/g, '$');
-  rawContent = rawContent.replace(/\$\$/g, ' $$ ');
-  rawContent = rawContent.replace(/(?<!\$)\$(?!\$)/g, ' $$ ');
-  //remove x01-x1f
-  rawContent = rawContent.replace(/[\x00\x08]/g, '');
-  const html =  marked.parse(rawContent);
-  //alert('renderedMarkdown: ' + html);
-  //const html = props.block.data.content;
-  //postpone prism.highlightAll();
-  setTimeout(() => {
-    prism.highlightAll();
-    setTimeout(() => {
-      const links = document.querySelectorAll('a[href]');
-      links.forEach(link => {
-        link.setAttribute('target', '_blank');
-        link.setAttribute('rel', 'noopener noreferrer');
-      });
-    }, 50);
-  }, 50);
-  return html;
-});
 
-
-const renderedQuestionMarkdown = computed(() => {
-  //alert('renderedQuestionMarkdown: ' + props.block.data.user_input_content.desc);
-  var rawContent = props.block.data.user_input_content.desc;
-  rawContent = rawContent.replace(/\n\$/g, '$');
-  rawContent = rawContent.replace(/\$\n/g, '$');
-  rawContent = rawContent.replace(/\$\$/g, ' $$ ');
-  rawContent = rawContent.replace(/(?<!\$)\$(?!\$)/g, ' $ ');
-  rawContent = rawContent.replace(/[\x00\x08]/g, '');
-  const html =  marked.parse(rawContent);
-  //const html = props.block.data.user_input_content.desc;
-  setTimeout(() => {
-    prism.highlightAll();
-    setTimeout(() => {
-      const links = document.querySelectorAll('a[href]');
-      links.forEach(link => {
-        link.setAttribute('target', '_blank');
-        link.setAttribute('rel', 'noopener noreferrer');
-      });
-    }, 50);
-  }, 50);
-  return html;
-});
 
 // Watcher
 watch(
