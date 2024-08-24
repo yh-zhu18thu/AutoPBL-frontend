@@ -304,9 +304,6 @@
                 //this.$router.push('/board');
               }
             }
-            alert("抱歉，生成时间出错，系统将自动重新生成");
-            clearInterval(this.getBlockIntervalId);
-            this.refreshBlock(this.stepId, this.subStepId, this.blockId);
           }
         }, 1000);
         //set timeout to clear the interval if no response in 120 seconds and refresh the block
