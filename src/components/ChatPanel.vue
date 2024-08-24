@@ -56,7 +56,12 @@
     </div>
 
     <div class="input-part">
-      <input v-model="userInput" type="text" placeholder="请输入你的问题..." />
+      <textarea
+        v-model="userInput"
+        placeholder="请输入你的问题..." 
+        rows="1"
+        @keyup.enter="sendMessage"
+        @input="autoResize"/>
       <button @click="sendMessage">发送</button>
     </div>
   </div>
@@ -164,6 +169,8 @@ const createNewChat = () => {
   chatId.value = null;
   status.value = 'init';
   chatMessages.value = [];
+  userInput.value = '';
+  resetTextArea();
 };
 
 const checkHistory = (chatId) => {
@@ -193,6 +200,8 @@ const handleChatHistoryClick = (_chatId) => {
       chatMessages.value[0].content = chatMessages.value[0].content.substring(firstMessageIndex+1);
       status.value = 'normal';
       chatId.value = _chatId;
+      userInput.value = '';
+      resetTextArea();
       if (response.quote) {
         loadedQuoteContent.value = response.quote;
       }
@@ -240,6 +249,17 @@ const truncatePropQuote = computed(() => {
   }
   return props.quoteContent;
 });
+
+const autoResize = (event) => {
+  const textarea = event.target;
+  textarea.style.height = 'auto';
+  textarea.style.height = event.target.scrollHeight + 'px';
+};
+
+const resetTextArea = () => {
+  const textarea = document.querySelector('textarea');
+  textarea.style.height = 'auto';
+};
 
 const sendMessage = () => {
   if (userInput.value.trim()) {
@@ -290,6 +310,7 @@ const sendMessage = () => {
       });
     }
     userInput.value = '';
+    resetTextArea();
   }
 };
 
@@ -514,12 +535,15 @@ const renderMarkdown = (content) => {
   border-top: 1px solid #ddd;
 }
 
-input[type="text"] {
+textarea {
   flex-grow: 1;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 12px;
   box-sizing: border-box;
+  resize: none; /* Prevent manual resizing */
+  overflow-y: auto; /* Hide the scrollbar */
+  max-height: 200px;
 }
 
 button {
