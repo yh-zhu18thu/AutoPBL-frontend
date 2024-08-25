@@ -106,32 +106,39 @@
   </script>
   
   <style scoped>
-  .projects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
+  .board-page {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  padding: 25px; /* Padding for the content */
+  max-width: 1200px; /* Maximum width of the content */
+  background-color: #ffffff;
+  color: #333;
+  }
+  
+  h2 {
+  font-size: 28px;
+  font-weight: bold;
+  margin-left: 5px;
+  margin-bottom: 25px;
+  color: #333;
   }
 
-  .project-card {
-    border: 1px solid #ccc;
-    padding: 16px;
-    transition: background-color 0.3s ease;
+  button{
+    border: none;
+    background-color: #1877f2;
+    padding: 10px 20px; /* 按钮的高度和宽度 */
+    font-size: 13px;
+    color: #fff;
+    margin-top: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-bottom: 0.5rem; 
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
   }
 
-  .status-generating {
-    background-color: #f0f0f0; /* Gray background for "生成中" */
-    color: #999; /* Light text color */
+  button:hover {
+    background-color: #166fe5;
   }
 
-  .status-error {
-    background-color: #ffe6e6; /* Light red background for "生成出错" */
-    color: #ff0000; /* Red text color */
-  }
-
-  .status-available {
-    background-color: #e6ffe6; /* Light green background for "可使用" */
-    color: #00cc00; /* Green text color */
-  }
 
   .dialog-overlay {
     position: fixed;
@@ -151,20 +158,81 @@
     border-radius: 5px;
     width: 300px;
     max-width: 100%;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .dialog h3 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #333;
   }
 
   .dialog-actions {
     margin-top: 15px;
     display: flex;
-      justify-content: space-between;
+    justify-content: space-between;
+  }
+
+  .dialog-actions button:last-child {
+    background-color: #787878;
+    margin-left: 10px;
+  }
+
+  .dialog-actions button:last-child:hover {
+    background-color: #656565;
+  }
+
+
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+
+  .project-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); /* 阴影边框 */
+    margin-top: 20px;
+    margin-left: 5px;
+    margin-right: 5px;
+    padding: 20px; /* 内边距，增加内容与边框的距离 */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* 添加动画效果 */
+  }
+
+  .project-card:hover {
+    background-color: #f5f5f5;
+  }/*todo color*/
+
+  .project-card:disabled {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+  }/*todo color*/
+
+  .status-generating {
+    background-color: #f0f0f0; /* Gray background for "生成中" */
+    padding: 25px;
+    color: #999; /* Light text color */
+  }
+
+  .status-error {
+    background-color: #ffe6e6; /* Light red background for "生成出错" */
+    padding: 25px;
+    color: #ff0000; /* Red text color */
+  }
+
+  .status-available {
+    background-color: #e6ffe6; /* Light green background for "可使用" */
+    padding: 25px;
+    color: #08b808b8; /* Green text color */
   }
 
   textarea {
     width: 100%;
     margin-top: 10px;
-    padding: 5px;
-    border-radius: 3px;
-    border: 1px solid #ccc;
+    padding: 5px; 
+    border-radius: 3px; 
+    border: 1px solid #ccc; 
   }
 
 </style>
