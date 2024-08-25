@@ -203,9 +203,15 @@
         }
         this.showMenu = false;
       },
+    
       addToCollection: async function() {
+        const collectionTypeDict = {
+          'type1': '重点',
+          'type2': '疑惑',
+          'type3': '想法',
+        };
         const collectionContent = {
-          type: this.selectedType,
+          type: collectionTypeDict[this.selectedType],
           note: this.note,
           content: this.selectedText,
         };

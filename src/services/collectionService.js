@@ -4,6 +4,7 @@ const collectionService = {
     getCollectionList: async () => {
         try {
             const response = await axiosInstance.get('/api/collection/collection_list');
+            console.log('response', response.data);
             return response.data;
         } catch (error) {
             console.error('Error while getting collection list', error);
