@@ -91,7 +91,7 @@ import "prismjs/plugins/custom-class/prism-custom-class";
 prism.plugins.customClass.map({ number: "prism-number", tag: "prism-tag" });
 
 const options = {
-  throwOnError: true,
+  throwOnError: false,
   output: 'mathml',
   delimiters: [
     {left: "$$", right: "$$", display: true},

@@ -84,7 +84,7 @@ prism.plugins.customClass.map({ number: "prism-number", tag: "prism-tag" });
 //alert('marked');
 
 const options = {
-  throwOnError: true,
+  throwOnError: false,
   output: 'mathml',
   delimiters: [
     {left: "$$", right: "$$", display: true},

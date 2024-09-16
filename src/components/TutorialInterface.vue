@@ -261,6 +261,7 @@
             const response = await contentService.getSubStepBlocks(this.tutorialId, this.stepId, this.subStepId);
             if (response.status === "success") {
               this.tutorialBlocks = response.blocks;
+              //console.log("!@block",response.blocks);
               const blockId = response.blocks[response.blocks.length - 1].block_index.block_id;
               this.updateBlockId(blockId);
             }else {
