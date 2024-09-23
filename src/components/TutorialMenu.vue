@@ -25,7 +25,7 @@
     </div>
   </div>
     <button class="return-button" @click="goBack">
-      <i class="fas fa-arrow-left"></i> 返回
+      <i class="fas fa-arrow-left"></i> Back
     </button>
   </div>
 </template>

@@ -14,15 +14,9 @@ export default defineConfig({
     }
   },
   server: {
-    host: '0.0.0.0',
-    port: 22260,
-    strictPort: true,
-    hmr: {
-      port: 22261,
-    },
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:22262',
+        target: 'http://127.0.0.1:5000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }

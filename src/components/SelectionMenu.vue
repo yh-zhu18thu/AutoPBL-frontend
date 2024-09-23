@@ -1,9 +1,8 @@
 <template>
   <!-- 动态显示的选项列表 -->
   <div v-if="showMenu" :style="menuStyle" class="selection-menu">
-      <button @click="copy">复制</button>
-      <button @click="quote">引用</button>
-      <button @click="addToCollection">笔记</button>
+      <button @click="copy">Copy</button>
+      <button @click="quote">Quote</button>
   </div>
 </template>
 

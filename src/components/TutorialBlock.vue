@@ -5,7 +5,7 @@
       <div class="tutorial-block-content">
         <div v-html="renderMarkdown(props.block.data.content)" class="tutorial-content line-numbers language-markup" ></div>
         <div v-if="isCountingDown" class="countdown">
-          <p> 还有 {{ timeLeft }} 秒可以查看问题 </p>
+          <p>  {{ timeLeft }} seconds remaining before you can view the checkpoint question  </p>
         </div>
         <div v-else class="user-question">
           <div class="question-content" v-html="renderMarkdown(props.block.data.user_input_content.desc)"></div>
@@ -35,7 +35,7 @@
             <input 
               type="text"
               v-model="userInput"
-              placeholder="输入你的答案..." 
+              placeholder="Please input your answer..." 
               :disabled="userAnswered"
               :class="{ 'disabled-input': userAnswered}"
             />
@@ -45,7 +45,7 @@
               :disabled="userAnswered"
               :class="{ 'disabled-button': userAnswered, 'selected-choice': selectedTextInputType === 'submit'}"
             >
-              提交
+              Submit
             </button>
           </div>
         </div>
@@ -53,7 +53,7 @@
     </div>
     <div class="block-actions">
       <button class="action-button refresh-button" @click="handleRefresh">
-        <img :src="refreshIconUrl" alt="刷新" />
+        <img :src="refreshIconUrl" alt="Refresh" />
       </button>
     </div>
   </div>
@@ -127,7 +127,7 @@ const userInput = ref('');
 const selectedChoice = ref(-1);
 const selectedTextInputType = ref('');
 //for countdown
-const timeLeft = ref(20);
+const timeLeft = ref(5);
 const isCountingDown = ref(false);
 let countDownInterval = null;
 
@@ -238,7 +238,7 @@ const startCountDown = () => {
   if (isCountingDown.value) {
     return;
   }
-  timeLeft.value = 20;
+  timeLeft.value = 5;
   isCountingDown.value = true;
   countDownInterval = setInterval(() => {
     timeLeft.value -= 1;

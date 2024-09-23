@@ -2,10 +2,10 @@
   <div class="chat-panel">
     <LoadingSpinner :show="isLoading" />
     <div class="title-part">
-      <button class="left-button" @click="createNewChat">新聊天</button>
+      <button class="left-button" @click="createNewChat">New</button>
       <div class="title">{{ truncateTitle }}</div>
       <div class="history-dropdown">
-        <button class="right-button" @click="checkHistory">历史记录</button>
+        <button class="right-button" @click="checkHistory">History</button>
         <div v-if="historyDropdown" class="dropdown-list">
           <ul >
             <li v-for="item in historyChats" :key="item.chat_id" @click="handleChatHistoryClick(item.chat_id)">
@@ -26,11 +26,11 @@
       <template v-if="status === 'init'">
         <div class="preset-selector">
           <select v-model="selectedPreset" id="preset-select">
-            <option value="自由提问">自由提问</option>
-            <option value="解释">解释</option>
+            <option value="自由提问">Free Mode</option>
+            <option value="解释">Explanation</option>
             <option value="Debug">Debug</option>
-            <option value="可视化">可视化</option>
-            <option value="出练习题">出练习题</option>
+            <option value="可视化">Visualization</option>
+            <option value="出练习题">Exercise</option>
             <!-- Add more options as needed -->
           </select>
         </div>
@@ -42,7 +42,7 @@
 
     <div class="chat-interface">
       <template v-if="status === 'init'">
-        <div class="instruction-text">您有什么需要帮助的？</div>
+        <div class="instruction-text">What help do you need?</div>
       </template>
       <template v-else>
         <div class="chat-blocks" ref="chatBlocks">
@@ -58,11 +58,11 @@
     <div class="input-part">
       <textarea
         v-model="userInput"
-        placeholder="请输入你的问题..." 
+        placeholder="Please enter your question..." 
         rows="1"
         @keyup.enter="sendMessage"
         @input="autoResize"/>
-      <button @click="sendMessage">发送</button>
+      <button @click="sendMessage">Send</button>
     </div>
   </div>
 </template>
@@ -153,10 +153,10 @@ const props = defineProps({
   }
 })
 
-const title = ref("问问AI");
+const title = ref("Virtual TA");
 const status = ref('init'); // 'init' or 'normal'
 const chatId = ref(null);
-const selectedPreset = ref('自由提问');
+const selectedPreset = ref('Free Mode');
 const loadedQuoteContent  = ref('');
 const chatMessages = ref([]);
 const userInput = ref('');
